@@ -1,0 +1,31 @@
+# ResuFit
+
+> AI-powered ATS resume optimizer. Upload your resume and a job description — get a fully tailored, ATS-compatible resume in under 10 seconds.
+
+## What ResuFit does
+
+ResuFit analyzes your resume against a specific job description and rebuilds it to pass Applicant Tracking System (ATS) filters used by 95%+ of Fortune 500 companies. It identifies missing keywords, fixes formatting issues that cause ATS rejection, rewrites bullet points using the X-Y-Z impact formula, and generates a professional summary tailored to the target role.
+
+## Who it's for
+
+Job seekers applying to roles in any industry. Especially useful when applying to companies that use automated screening software (which is most large employers).
+
+## Pricing
+
+- **One-time**: $5 (£5 / €5) — single optimized resume download
+- **Pro Plan**: $15/month (£15 / €15) — 30 optimizations per month, cancel anytime
+- **Annual Plan**: $99/year (£99 / €99) — 50 optimizations per month, best value
+
+## Key features
+
+- ATS keyword matching against 50+ hiring platforms
+- Format compatibility fixes (removes tables, columns, graphics that ATS cannot read)
+- Tone-of-voice matching — output sounds like you, but stronger
+- Skill gap follow-up — asks targeted questions post-payment to fill resume gaps
+- Four professional templates: Executive, Modern, Minimal, Classic
+- PDF and DOCX download
+
+## Links
+
+- Homepage: https://resufit.co
+- Sign up: https://resufit.co/sign-up
