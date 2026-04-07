@@ -109,7 +109,8 @@ export async function POST(request: NextRequest) {
   }
 
   // 9. Log the optimization + increment usage counter (admin client to bypass RLS)
-  const { data: optimizationRecord } = await admin
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: optimizationRecord } = await (admin as any)
     .from("optimizations")
     .insert({
       user_id: user.id,
