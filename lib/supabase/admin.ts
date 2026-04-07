@@ -4,9 +4,11 @@ import { createClient } from "@supabase/supabase-js";
 // ONLY use in trusted server-side contexts (webhook handlers, admin routes).
 // NEVER import this in Client Components or expose to the browser.
 
-let adminClient: ReturnType<typeof createClient> | null = null;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let adminClient: any = null;
 
-export function createAdminClient() {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function createAdminClient(): any {
   if (adminClient) return adminClient;
 
   adminClient = createClient(

@@ -63,8 +63,7 @@ export async function POST(request: NextRequest) {
 
   // 5. Entitlement check — uses service role to bypass RLS
   const admin = createAdminClient();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: subscription, error: subError } = await (admin as any)
+  const { data: subscription, error: subError } = await admin
     .rpc("get_active_subscription", { p_user_id: user.id })
     .single();
 
@@ -109,8 +108,7 @@ export async function POST(request: NextRequest) {
   }
 
   // 9. Log the optimization + increment usage counter (admin client to bypass RLS)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: optimizationRecord } = await (admin as any)
+  const { data: optimizationRecord } = await admin
     .from("optimizations")
     .insert({
       user_id: user.id,
