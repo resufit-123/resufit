@@ -72,22 +72,13 @@ export default function Footer() {
 
 function FooterLink({ href, children }: { href: string; children: React.ReactNode }) {
   const isExternal = href.startsWith("mailto:");
+  const cls = "text-xs transition-colors text-slate-500 hover:text-slate-400";
   return isExternal ? (
-    <a
-      href={href}
-      className="text-xs transition-colors"
-      style={{ color: "#64748b" }}
-      onMouseEnter={(e) => (e.currentTarget.style.color = "#94a3b8")}
-      onMouseLeave={(e) => (e.currentTarget.style.color = "#64748b")}
-    >
+    <a href={href} className={cls}>
       {children}
     </a>
   ) : (
-    <Link
-      href={href}
-      className="text-xs transition-colors"
-      style={{ color: "#64748b" }}
-    >
+    <Link href={href} className={cls}>
       {children}
     </Link>
   );
