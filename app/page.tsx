@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import DropZone from "@/components/DropZone";
 import ProcessingScreen from "@/components/ProcessingScreen";
+import Logo from "@/components/Logo";
 import type { OptimizationResult, Template } from "@/types";
 
 export default function HomePage() {
@@ -56,8 +57,13 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen bg-[#0f172a] flex flex-col items-center">
+      {/* Nav / Logo bar */}
+      <div className="w-full max-w-xl px-6 pt-8 pb-2 flex justify-center">
+        <Logo size="md" />
+      </div>
+
       {/* Hero */}
-      <div className="w-full max-w-xl px-6 pt-10 pb-8 text-center">
+      <div className="w-full max-w-xl px-6 pt-6 pb-8 text-center">
         <div className="inline-flex items-center gap-2 bg-[#1e293b] border border-[#334155] rounded-full px-4 py-1.5 text-xs text-[#94a3b8] mb-6">
           <span className="w-1.5 h-1.5 rounded-full bg-[#10b981] inline-block" />
           Optimized against ATS criteria from 50+ hiring platforms
@@ -149,10 +155,7 @@ export default function HomePage() {
           )}
         </div>
 
-        {/* Social proof placeholder */}
-        <p className="text-center text-xs text-[#475569] mt-4 pb-8">
-          Trusted by job seekers applying to Google, Meta, HSBC, McKinsey and more
-        </p>
+        <div className="pb-8" />
       </div>
     </main>
   );
