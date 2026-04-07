@@ -44,10 +44,8 @@ const nextConfig: NextConfig = {
     ];
   },
 
-  // Restrict server-only packages from being bundled on the client
-  experimental: {
-    serverComponentsExternalPackages: ["pdf-parse", "mammoth"],
-  },
+  // Restrict server-only packages from being bundled on the client (Next.js 15)
+  serverExternalPackages: ["pdf-parse", "mammoth"],
 };
 
 export default nextConfig;
