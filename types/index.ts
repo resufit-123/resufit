@@ -69,6 +69,7 @@ export interface OptimizationResult {
   skillGapQuestions: SkillGapQuestion[];  // Up to 3 targeted questions
   jobTitle: string | null;
   company: string | null;
+  optimizationId: string | null;
 }
 
 export interface SkillGapQuestion {
