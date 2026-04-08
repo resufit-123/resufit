@@ -128,19 +128,14 @@ export default function HomePage() {
           <div className="flex-1 mb-10 lg:mb-0">
             {/* Headline */}
             <h1
-              className="font-bold leading-snug mb-8 max-w-lg"
+              className="font-bold leading-tight mb-5"
               style={{
-                fontSize: "clamp(1.6rem, 3vw, 2.5rem)",
+                fontSize: "clamp(2rem, 4vw, 3.25rem)",
+                color: "#f8fafc",
                 letterSpacing: "-0.02em",
               }}
             >
-              <span style={{ color: "#94a3b8", fontWeight: 400 }}>
-                Hiring software silently rejects most applicants before a human
-                reads their resume.{" "}
-              </span>
-              <span style={{ color: "#f8fafc" }}>
-                ResuFit rewrites{" "}
-              </span>
+              Your resume,{" "}
               <span
                 style={{
                   background: "linear-gradient(135deg, #a78bfa, #818cf8)",
@@ -148,12 +143,21 @@ export default function HomePage() {
                   WebkitTextFillColor: "transparent",
                 }}
               >
-                yours
+                built to reach humans.
               </span>
-              <span style={{ color: "#f8fafc" }}>
-                {" "}around the exact role, so you make it through.
-              </span>
+              <br />
+              In 10 seconds.
             </h1>
+
+            {/* Subtext */}
+            <p
+              className="text-base leading-relaxed mb-8 max-w-lg"
+              style={{ color: "#94a3b8" }}
+            >
+              Hiring software silently rejects most applicants before a human
+              reads their resume. ResuFit rewrites yours around the exact role,
+              so you make it through.
+            </p>
 
             {/* Value props */}
             <ul className="space-y-4 mb-10">
