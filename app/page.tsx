@@ -23,7 +23,7 @@ const VALUE_PROPS = [
         <circle cx="8" cy="8" r="3" stroke="#a78bfa" strokeWidth="1.4" />
       </svg>
     ),
-    text: "AI rewrites your resume around the exact job description",
+    text: "ResuFit optimises your resume for the job that you want",
   },
   {
     icon: (
@@ -94,23 +94,6 @@ export default function HomePage() {
       {/* ── Top nav ── */}
       <header className="w-full max-w-6xl mx-auto px-6 lg:px-10 pt-6 pb-4 flex items-center justify-between gap-4">
         <Logo size="md" />
-
-        {/* Centre badge — hidden on small screens */}
-        <div
-          className="hidden md:inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs"
-          style={{
-            background: "#1e293b",
-            border: "1px solid #334155",
-            color: "#94a3b8",
-          }}
-        >
-          <span
-            className="w-1.5 h-1.5 rounded-full inline-block shrink-0"
-            style={{ background: "#10b981" }}
-          />
-          AI-powered · Results in under 10 seconds
-        </div>
-
         <a
           href="/sign-in"
           className="text-sm transition-colors shrink-0"
@@ -135,7 +118,7 @@ export default function HomePage() {
                 letterSpacing: "-0.02em",
               }}
             >
-              Your resume,{" "}
+              Your{" "}
               <span
                 style={{
                   background: "linear-gradient(135deg, #a78bfa, #818cf8)",
@@ -143,10 +126,9 @@ export default function HomePage() {
                   WebkitTextFillColor: "transparent",
                 }}
               >
-                built to reach humans.
+                job-winning
               </span>
-              <br />
-              In 10 seconds.
+              {" "}resume, fast.
             </h1>
 
             {/* Subtext */}
@@ -155,8 +137,8 @@ export default function HomePage() {
               style={{ color: "#94a3b8" }}
             >
               Hiring software silently rejects most applicants before a human
-              reads their resume. ResuFit rewrites yours around the exact role,
-              so you make it through.
+              reads their resume. ResuFit makes sure yours ticks every box so
+              the hiring manager sees it.
             </p>
 
             {/* Value props */}
