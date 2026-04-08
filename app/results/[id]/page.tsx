@@ -7,15 +7,28 @@ import LimitWall from "@/components/LimitWall";
 import SkillGapScreen from "@/components/SkillGapScreen";
 import ResultsScreen from "@/components/ResultsScreen";
 import ProcessingScreen from "@/components/ProcessingScreen";
+import PreAnalysisScreen from "@/components/PreAnalysisScreen";
 import type { OptimizationResult, Template } from "@/types";
 
 type PageState =
-  | "loading"           // Running the AI optimization
-  | "payment_required"  // No active entitlement
+  | "pre_analysis"      // Keyword analysis done, show teaser — waiting for payment
+  | "loading"           // Running the full AI optimization (post-payment)
+  | "payment_required"  // No analysis and no session_id (direct URL visit)
   | "limit_reached"     // Pro user hit monthly cap
-  | "skill_gap"         // Post-payment skill gap questions
-  | "ready"             // Show results + download
+  | "skill_gap"         // Post-AI skill gap questions
+  | "ready"             // Full results + download
   | "error";
+
+export interface AnalysisResult {
+  scoreBefore: number;
+  predictedAfter: number;
+  skills: { name: string; status: "matched" | "missing" }[];
+  formattingIssues: string[];
+  jobTitleHint: string | null;
+  keywordsAnalysed: number;
+  matchedCount: number;
+  missingCount: number;
+}
 
 export default function ResultsPage() {
   const params = useParams();
@@ -23,9 +36,8 @@ export default function ResultsPage() {
   const optimizationId = params.id as string;
   const justPaid = searchParams.has("session_id");
 
-  const [pageState, setPageState] = useState<PageState>(
-    justPaid ? "loading" : "payment_required"
-  );
+  const [pageState, setPageState] = useState<PageState>("loading");
+  const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [result, setResult] = useState<OptimizationResult | null>(null);
   const [revisedResume, setRevisedResume] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -33,13 +45,27 @@ export default function ResultsPage() {
   const [email, setEmail] = useState("");
   const [marketingOptIn, setMarketingOptIn] = useState(false);
 
-  // If user just completed payment, run the optimization
   useEffect(() => {
     if (justPaid) {
+      // Came back from Stripe — run the full AI optimization
       runOptimization();
+    } else {
+      // First visit — check for keyword analysis in sessionStorage
+      const raw = sessionStorage.getItem("rf_analysis");
+      if (raw) {
+        try {
+          setAnalysis(JSON.parse(raw));
+          setPageState("pre_analysis");
+        } catch {
+          setPageState("payment_required");
+        }
+      } else {
+        // Direct URL visit with no data
+        setPageState("payment_required");
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [justPaid]);
+  }, []);
 
   async function runOptimization() {
     setPageState("loading");
@@ -53,7 +79,6 @@ export default function ResultsPage() {
       return;
     }
 
-    // For guest one-time users, pass the Stripe session ID as proof of payment
     const stripeSessionId = searchParams.get("session_id");
 
     try {
@@ -84,7 +109,6 @@ export default function ResultsPage() {
 
       setResult(data);
 
-      // Move to skill gap if there are questions; otherwise straight to results
       if (data.skillGapQuestions?.length > 0) {
         setPageState("skill_gap");
       } else {
@@ -115,25 +139,20 @@ export default function ResultsPage() {
       });
 
       const data = await res.json();
-      if (res.ok) {
-        setRevisedResume(data.revisedResume);
-      }
+      if (res.ok) setRevisedResume(data.revisedResume);
     } catch (err) {
       console.error("Skill gap revision failed:", err);
-      // Fall through to results even if revision fails
     }
 
     setPageState("ready");
   }
 
   async function handlePurchase(plan: "one_time" | "pro" | "annual") {
-    // Pro/Annual requires an account — send to sign-up first, checkout happens after
     if (plan === "pro" || plan === "annual") {
       window.location.href = `/sign-up?plan=${plan}&redirectTo=/results/new`;
       return;
     }
 
-    // One-time: no account needed, go straight to Stripe checkout
     try {
       const res = await fetch("/api/checkout", {
         method: "POST",
@@ -154,7 +173,7 @@ export default function ResultsPage() {
     }
   }
 
-  // ── Render ─────────────────────────────────────
+  // ── Render ──────────────────────────────────────────────────
 
   if (pageState === "loading") {
     return <ProcessingScreen />;
@@ -165,11 +184,22 @@ export default function ResultsPage() {
       <main className="min-h-screen bg-[#0f172a] flex items-center justify-center px-6">
         <div className="text-center max-w-sm">
           <p className="text-red-400 mb-4">{error}</p>
-          <a href="/" className="text-[#a78bfa] text-sm hover:underline">
-            ← Start again
-          </a>
+          <a href="/" className="text-[#a78bfa] text-sm hover:underline">← Start again</a>
         </div>
       </main>
+    );
+  }
+
+  if (pageState === "pre_analysis" && analysis) {
+    return (
+      <PreAnalysisScreen
+        analysis={analysis}
+        email={email}
+        marketingOptIn={marketingOptIn}
+        onEmailChange={setEmail}
+        onMarketingOptInChange={setMarketingOptIn}
+        onPurchase={handlePurchase}
+      />
     );
   }
 

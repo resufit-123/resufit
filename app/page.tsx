@@ -51,6 +51,7 @@ export default function HomePage() {
     setIsProcessing(true);
 
     try {
+      // Step 1: Parse the resume file
       const formData = new FormData();
       formData.append("resume", file);
 
@@ -70,12 +71,26 @@ export default function HomePage() {
 
       const { resumeText } = await uploadRes.json();
 
+      // Step 2: Run instant keyword analysis (no AI, no cost)
+      const analyseRes = await fetch("/api/analyse", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ resumeText, jobDescription }),
+      });
+
+      let analysis = null;
+      if (analyseRes.ok) {
+        analysis = await analyseRes.json();
+      }
+
+      // Persist everything for the results page
       sessionStorage.setItem("rf_resume_text", resumeText);
       sessionStorage.setItem("rf_job_description", jobDescription);
       sessionStorage.setItem("rf_file_name", file.name);
+      if (analysis) {
+        sessionStorage.setItem("rf_analysis", JSON.stringify(analysis));
+      }
 
-      // Go straight to results — no account required.
-      // The paywall on the results page handles payment (one-time or Pro).
       window.location.href = "/results/new";
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
