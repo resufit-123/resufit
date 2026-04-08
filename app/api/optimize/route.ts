@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
         job_title: result.jobTitle,
         company: result.company,
         template,
-        score_before: result.scoreBefore,
+        score_before: result.scoreBefor,
         score_after: result.scoreAfter,
         ai_model_used: "claude-haiku-4-5-20251001",
         tokens_used: resumeTokens + estimateTokenCount(trimmedJd),
