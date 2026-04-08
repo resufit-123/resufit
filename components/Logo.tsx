@@ -53,8 +53,8 @@ export default function Logo({ size = "md", linkToHome = true }: LogoProps) {
 
       {/* Wordmark */}
       <span className={`${s.text} font-semibold tracking-tight`}>
-        <span className="text-white">Resu</span>
-        <span style={{ color: "#a78bfa" }}>Fit</span>
+        <span style={{ color: "#111827" }}>Resu</span>
+        <span style={{ color: "#7c3aed" }}>Fit</span>
       </span>
     </div>
   );

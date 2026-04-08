@@ -13,6 +13,23 @@ interface PreAnalysisScreenProps {
   onPurchase: (plan: Plan) => void;
 }
 
+// Extract first name from the top of a resume (first line, first word)
+function extractFirstName(resumeText: string): string | null {
+  const lines = resumeText.trim().split("\n").map((l) => l.trim()).filter(Boolean);
+  const first = lines[0] ?? "";
+  // Must look like a name: 2–4 words, each starting with a capital, no digits
+  const words = first.split(/\s+/);
+  if (
+    words.length >= 2 &&
+    words.length <= 5 &&
+    words.every((w) => /^[A-Z][a-zA-Z'-]{1,}$/.test(w)) &&
+    first.length < 55
+  ) {
+    return words[0]; // Return first name only
+  }
+  return null;
+}
+
 // Ease-out cubic count-up for the score reveal
 function useCountUp(target: number, duration = 900) {
   const [value, setValue] = useState(0);
@@ -48,6 +65,8 @@ export default function PreAnalysisScreen({
   const resumeText =
     typeof window !== "undefined" ? sessionStorage.getItem("rf_resume_text") ?? "" : "";
 
+  const firstName = extractFirstName(resumeText);
+
   // Animation styles (injected once)
   const animStyles = `
     @keyframes fadeInUp {
@@ -70,25 +89,28 @@ export default function PreAnalysisScreen({
       <div style={{ background: "#ffffff", borderBottom: "1px solid #f3f4f6" }}>
         <div className="max-w-5xl mx-auto px-5 pt-8 pb-10">
 
-          {/* Eyebrow */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-7">
+          {/* Eyebrow + headline */}
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-7">
             <div>
-              {missingCount > 0 && (
-                <div
-                  className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold mb-3"
-                  style={{ background: "#fff7ed", border: "1px solid #fed7aa", color: "#c2410c" }}
-                >
-                  <span>⚠</span> We found {missingCount} gaps in your resume
-                </div>
-              )}
+              <div
+                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold mb-3"
+                style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", color: "#15803d" }}
+              >
+                <span>✓</span> Analysis complete
+              </div>
               <h1 className="text-2xl sm:text-3xl font-bold leading-tight" style={{ color: "#111827", letterSpacing: "-0.02em" }}>
-                This is why you&apos;re not hearing back.
+                {firstName ? `${firstName}, your optimised resume is ready.` : "Your optimised resume is ready."}
               </h1>
-              {jobTitleHint && (
-                <p className="text-sm mt-1.5" style={{ color: "#6b7280" }}>
-                  Based on the requirements we found for: <span style={{ color: "#374151", fontWeight: 500 }}>{jobTitleHint}</span>
-                </p>
-              )}
+              <p className="text-sm mt-2 max-w-lg" style={{ color: "#6b7280" }}>
+                We&apos;ve analysed your resume against{jobTitleHint ? ` the ${jobTitleHint} role` : " the job description"} and built your tailored version.
+                Unlock it below to download your PDF — ready to apply.
+              </p>
+            </div>
+            <div
+              className="shrink-0 inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-semibold sm:mt-1"
+              style={{ background: "#fff7ed", border: "1px solid #fed7aa", color: "#c2410c" }}
+            >
+              <span>⚡</span> {missingCount} gaps found &amp; fixed
             </div>
           </div>
 
@@ -98,7 +120,7 @@ export default function PreAnalysisScreen({
             {/* Before */}
             <div className="text-center shrink-0">
               <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: "#9ca3af" }}>
-                Your score now
+                Current match
               </p>
               <p
                 className="font-bold leading-none"
@@ -134,20 +156,20 @@ export default function PreAnalysisScreen({
                 className="text-xs font-semibold px-3 py-1.5 rounded-full"
                 style={{ background: "#f0fdf4", color: "#15803d", border: "1px solid #bbf7d0" }}
               >
-                +{improvement} point improvement — the difference between filtered out and interview-ready
+                +{improvement}% improvement locked in — unlock below to download
               </div>
             </div>
 
             {/* After */}
             <div className="text-center shrink-0">
               <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: "#9ca3af" }}>
-                With ResuFit
+                Your new score
               </p>
               <p
                 className="font-bold leading-none"
                 style={{ fontSize: "clamp(3rem, 8vw, 5rem)", color: "#6366f1", opacity: 0.45, fontVariantNumeric: "tabular-nums" }}
               >
-                ~{predictedAfter}
+                {predictedAfter}
                 <span style={{ fontSize: "1.5rem", fontWeight: 600 }}>%</span>
               </p>
             </div>
@@ -181,7 +203,7 @@ export default function PreAnalysisScreen({
                 <div className="w-2.5 h-2.5 rounded-full" style={{ background: "#fde68a" }} />
                 <div className="w-2.5 h-2.5 rounded-full" style={{ background: "#bbf7d0" }} />
                 <p className="ml-2 text-[10px] font-medium" style={{ color: "#9ca3af" }}>
-                  your-resume.pdf — original (unoptimised)
+                  your-resume.pdf — optimised version ready to unlock
                 </p>
               </div>
 
@@ -225,7 +247,7 @@ export default function PreAnalysisScreen({
                     }}
                   >
                     <span>✦</span>
-                    <span>Your AI-rewritten version is waiting — unlock below</span>
+                    <span>Your rewritten version is ready — unlock to download</span>
                   </div>
                 </div>
               </div>
