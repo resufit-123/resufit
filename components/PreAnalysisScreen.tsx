@@ -13,11 +13,10 @@ interface PreAnalysisScreenProps {
   onPurchase: (plan: Plan) => void;
 }
 
-// Extract first name from the top of a resume (first line, first word)
+// Extract first name from the top of a resume
 function extractFirstName(resumeText: string): string | null {
   const lines = resumeText.trim().split("\n").map((l) => l.trim()).filter(Boolean);
   const first = lines[0] ?? "";
-  // Must look like a name: 2–4 words, each starting with a capital, no digits
   const words = first.split(/\s+/);
   if (
     words.length >= 2 &&
@@ -25,26 +24,110 @@ function extractFirstName(resumeText: string): string | null {
     words.every((w) => /^[A-Z][a-zA-Z'-]{1,}$/.test(w)) &&
     first.length < 55
   ) {
-    return words[0]; // Return first name only
+    return words[0];
   }
   return null;
 }
 
-// Ease-out cubic count-up for the score reveal
-function useCountUp(target: number, duration = 900) {
-  const [value, setValue] = useState(0);
-  useEffect(() => {
-    const start = Date.now();
-    const tick = () => {
-      const progress = Math.min((Date.now() - start) / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setValue(Math.round(eased * target));
-      if (progress < 1) requestAnimationFrame(tick);
-    };
-    requestAnimationFrame(tick);
-  }, [target, duration]);
-  return value;
+// First third of resume by line count
+function firstThird(resumeText: string): string {
+  const lines = resumeText.trim().split("\n");
+  const cutoff = Math.max(Math.ceil(lines.length / 3), 8); // at least 8 lines
+  return lines.slice(0, cutoff).join("\n");
 }
+
+// ── Animated SVG circle gauge ─────────────────────────────
+interface CircleGaugeProps {
+  score: number;
+  label: string;
+  sublabel?: string;
+  trackColor: string;
+  fillColor: string;
+  textColor: string;
+  animateDelay?: number; // ms
+  size?: number;
+  strokeWidth?: number;
+  dim?: boolean;
+}
+
+function CircleGauge({
+  score,
+  label,
+  sublabel,
+  trackColor,
+  fillColor,
+  textColor,
+  animateDelay = 0,
+  size = 148,
+  strokeWidth = 11,
+  dim = false,
+}: CircleGaugeProps) {
+  const [filled, setFilled] = useState(false);
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const targetOffset = circumference * (1 - score / 100);
+
+  useEffect(() => {
+    const t = setTimeout(() => setFilled(true), animateDelay);
+    return () => clearTimeout(t);
+  }, [animateDelay]);
+
+  return (
+    <div className="flex flex-col items-center" style={{ opacity: dim ? 0.45 : 1 }}>
+      <div className="relative" style={{ width: size, height: size }}>
+        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+          <defs>
+            <linearGradient id={`gauge-fill-${score}-${animateDelay}`} x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor={fillColor} />
+              <stop offset="100%" stopColor={fillColor === "#ef4444" ? "#f87171" : "#10b981"} />
+            </linearGradient>
+          </defs>
+
+          {/* Track */}
+          <circle
+            cx={size / 2} cy={size / 2} r={radius}
+            fill="none"
+            stroke={trackColor}
+            strokeWidth={strokeWidth}
+          />
+
+          {/* Fill arc — draws in on mount */}
+          <circle
+            cx={size / 2} cy={size / 2} r={radius}
+            fill="none"
+            stroke={`url(#gauge-fill-${score}-${animateDelay})`}
+            strokeWidth={strokeWidth}
+            strokeLinecap="round"
+            strokeDasharray={circumference}
+            strokeDashoffset={filled ? targetOffset : circumference}
+            transform={`rotate(-90 ${size / 2} ${size / 2})`}
+            style={{ transition: `stroke-dashoffset 1.1s cubic-bezier(0.4,0,0.2,1) ${animateDelay * 0.001}s` }}
+          />
+        </svg>
+
+        {/* Score text overlay */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <span
+            className="font-black leading-none"
+            style={{ fontSize: size * 0.26, color: textColor, fontVariantNumeric: "tabular-nums" }}
+          >
+            {score}
+          </span>
+          <span className="font-semibold" style={{ fontSize: size * 0.12, color: textColor, opacity: 0.7 }}>%</span>
+        </div>
+      </div>
+
+      <p className="text-xs font-bold uppercase tracking-wider mt-3" style={{ color: textColor === "#ef4444" ? "#ef4444" : "#374151" }}>
+        {label}
+      </p>
+      {sublabel && (
+        <p className="text-[11px] mt-0.5 text-center max-w-[120px]" style={{ color: "#9ca3af" }}>{sublabel}</p>
+      )}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────
 
 export default function PreAnalysisScreen({
   analysis,
@@ -56,41 +139,36 @@ export default function PreAnalysisScreen({
 }: PreAnalysisScreenProps) {
   const { scoreBefore, predictedAfter, skills, formattingIssues, jobTitleHint, missingCount } = analysis;
 
-  const displayScore = useCountUp(scoreBefore);
   const improvement  = predictedAfter - scoreBefore;
-
   const missingSkills = skills.filter((s) => s.status === "missing");
   const matchedSkills = skills.filter((s) => s.status === "matched");
 
   const resumeText =
     typeof window !== "undefined" ? sessionStorage.getItem("rf_resume_text") ?? "" : "";
 
-  const firstName = extractFirstName(resumeText);
+  const firstName     = extractFirstName(resumeText);
+  const resumePreview = firstThird(resumeText);
 
-  // Animation styles (injected once)
   const animStyles = `
     @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(8px); }
+      from { opacity: 0; transform: translateY(10px); }
       to   { opacity: 1; transform: translateY(0); }
     }
-    @keyframes pulse-arrow {
-      0%, 100% { transform: translateX(0); opacity: 1; }
-      50%       { transform: translateX(4px); opacity: 0.7; }
-    }
-    .chip-animate { animation: fadeInUp 0.35s ease both; }
-    .arrow-pulse  { animation: pulse-arrow 1.8s ease-in-out 1s 3; }
+    .chip-in { animation: fadeInUp 0.3s ease both; }
   `;
 
   return (
     <main className="min-h-screen pb-24 lg:pb-0" style={{ background: "#f9fafb" }}>
       <style>{animStyles}</style>
 
-      {/* ── HERO ─────────────────────────────────────────────────── */}
+      {/* ══════════════════════════════════════════════
+          HERO — score circles + headline
+      ══════════════════════════════════════════════ */}
       <div style={{ background: "#ffffff", borderBottom: "1px solid #f3f4f6" }}>
         <div className="max-w-5xl mx-auto px-5 pt-8 pb-10">
 
-          {/* Eyebrow + headline */}
-          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-7">
+          {/* Headline */}
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-8">
             <div>
               <div
                 className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold mb-3"
@@ -98,103 +176,99 @@ export default function PreAnalysisScreen({
               >
                 <span>✓</span> Analysis complete
               </div>
-              <h1 className="text-2xl sm:text-3xl font-bold leading-tight" style={{ color: "#111827", letterSpacing: "-0.02em" }}>
-                {firstName ? `${firstName}, your optimised resume is ready.` : "Your optimised resume is ready."}
+              <h1
+                className="font-bold leading-tight"
+                style={{ fontSize: "clamp(1.5rem, 3vw, 2.2rem)", color: "#111827", letterSpacing: "-0.02em" }}
+              >
+                {firstName
+                  ? <>{firstName}, your optimised resume is ready.</>
+                  : <>Your optimised resume is ready.</>}
               </h1>
               <p className="text-sm mt-2 max-w-lg" style={{ color: "#6b7280" }}>
-                We&apos;ve analysed your resume against{jobTitleHint ? ` the ${jobTitleHint} role` : " the job description"} and built your tailored version.
-                Unlock it below to download your PDF — ready to apply.
+                We&apos;ve matched your experience to{" "}
+                {jobTitleHint
+                  ? <span style={{ color: "#374151", fontWeight: 500 }}>{jobTitleHint}</span>
+                  : "the role"}{" "}
+                and rebuilt your resume around it. Unlock below to download your PDF or editable Word file.
               </p>
             </div>
             <div
-              className="shrink-0 inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-semibold sm:mt-1"
+              className="shrink-0 inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-semibold self-start"
               style={{ background: "#fff7ed", border: "1px solid #fed7aa", color: "#c2410c" }}
             >
               <span>⚡</span> {missingCount} gaps found &amp; fixed
             </div>
           </div>
 
-          {/* Score visual */}
-          <div className="flex items-center gap-4 sm:gap-8">
+          {/* Score circles */}
+          <div className="flex items-center justify-center gap-6 sm:gap-12">
 
             {/* Before */}
-            <div className="text-center shrink-0">
-              <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: "#9ca3af" }}>
-                Current match
-              </p>
-              <p
-                className="font-bold leading-none"
-                style={{ fontSize: "clamp(3rem, 8vw, 5rem)", color: "#ef4444", fontVariantNumeric: "tabular-nums" }}
-              >
-                {displayScore}
-                <span style={{ fontSize: "1.5rem", fontWeight: 600 }}>%</span>
-              </p>
-            </div>
+            <CircleGauge
+              score={scoreBefore}
+              label="Your score now"
+              sublabel="Before ResuFit"
+              trackColor="#fee2e2"
+              fillColor="#ef4444"
+              textColor="#ef4444"
+              animateDelay={200}
+              size={148}
+            />
 
-            {/* Arrow + bar */}
-            <div className="flex-1 flex flex-col items-center gap-3">
-              <div className="flex items-center gap-2 w-full">
-                <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: "#f3f4f6" }}>
-                  <div
-                    className="h-full rounded-full"
-                    style={{ width: `${scoreBefore}%`, background: "#fca5a5", transition: "width 1s ease" }}
-                  />
-                </div>
-                <span className="arrow-pulse text-lg shrink-0" style={{ color: "#6366f1" }}>→</span>
-                <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: "#f3f4f6" }}>
-                  <div
-                    className="h-full rounded-full"
-                    style={{
-                      width: `${predictedAfter}%`,
-                      background: "linear-gradient(90deg, #6366f1, #10b981)",
-                      transition: "width 1.2s ease 0.4s",
-                    }}
-                  />
-                </div>
-              </div>
+            {/* Arrow + improvement badge */}
+            <div className="flex flex-col items-center gap-3">
+              <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+                <path d="M8 18h20M22 12l6 6-6 6" stroke="#6366f1" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
               <div
-                className="text-xs font-semibold px-3 py-1.5 rounded-full"
-                style={{ background: "#f0fdf4", color: "#15803d", border: "1px solid #bbf7d0" }}
+                className="text-xs font-bold px-3 py-1.5 rounded-full text-center"
+                style={{ background: "#f0fdf4", color: "#15803d", border: "1px solid #bbf7d0", maxWidth: "110px", lineHeight: 1.4 }}
               >
-                +{improvement}% improvement locked in — unlock below to download
+                +{improvement}%<br />improvement
               </div>
             </div>
 
             {/* After */}
-            <div className="text-center shrink-0">
-              <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: "#9ca3af" }}>
-                Your new score
-              </p>
-              <p
-                className="font-bold leading-none"
-                style={{ fontSize: "clamp(3rem, 8vw, 5rem)", color: "#6366f1", opacity: 0.45, fontVariantNumeric: "tabular-nums" }}
-              >
-                {predictedAfter}
-                <span style={{ fontSize: "1.5rem", fontWeight: 600 }}>%</span>
-              </p>
-            </div>
+            <CircleGauge
+              score={predictedAfter}
+              label="Your new score"
+              sublabel="With ResuFit"
+              trackColor="#ddd6fe"
+              fillColor="#6366f1"
+              textColor="#4f46e5"
+              animateDelay={600}
+              size={148}
+              dim
+            />
 
           </div>
+
+          {/* Unlock nudge */}
+          <p className="text-center text-xs mt-6" style={{ color: "#9ca3af" }}>
+            Your rewritten resume is ready — unlock below to download
+          </p>
         </div>
       </div>
 
-      {/* ── BODY ─────────────────────────────────────────────────── */}
+      {/* ══════════════════════════════════════════════
+          BODY
+      ══════════════════════════════════════════════ */}
       <div className="max-w-5xl mx-auto px-5 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-          {/* ── LEFT: resume + insights ── */}
+          {/* ── LEFT ── */}
           <div className="lg:col-span-2 space-y-5">
 
-            {/* Resume preview — document aesthetic */}
+            {/* Resume preview — first third, blurred below */}
             <div
               className="rounded-2xl overflow-hidden"
               style={{
                 background: "#ffffff",
                 border: "1px solid #e5e7eb",
-                boxShadow: "0 4px 16px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04)",
+                boxShadow: "0 4px 20px rgba(0,0,0,0.06)",
               }}
             >
-              {/* Doc header bar */}
+              {/* Mac chrome bar */}
               <div
                 className="flex items-center gap-2 px-4 py-2.5"
                 style={{ background: "#f9fafb", borderBottom: "1px solid #f3f4f6" }}
@@ -207,115 +281,97 @@ export default function PreAnalysisScreen({
                 </p>
               </div>
 
-              {/* Document content */}
               <div className="relative">
+                {/* First third of the actual resume */}
                 <div
                   className="px-7 pt-6 pb-4 text-xs leading-relaxed whitespace-pre-wrap overflow-hidden"
                   style={{
-                    color: "#4b5563",
+                    color: "#374151",
                     fontFamily: "Georgia, 'Times New Roman', serif",
-                    maxHeight: "230px",
-                    lineHeight: "1.7",
+                    lineHeight: "1.75",
+                    maxHeight: "280px",
                   }}
                 >
-                  {resumeText.slice(0, 520) || "Resume content loaded."}
+                  {resumePreview || "Resume loaded."}
                 </div>
 
-                {/* Backdrop blur + gradient fade */}
+                {/* Blur overlay — real CSS blur */}
                 <div
                   className="absolute inset-x-0 bottom-0"
                   style={{
-                    height: "155px",
-                    backdropFilter: "blur(5px)",
-                    WebkitBackdropFilter: "blur(5px)",
-                    background: "linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.7) 45%, #ffffff 100%)",
+                    height: "160px",
+                    backdropFilter: "blur(6px)",
+                    WebkitBackdropFilter: "blur(6px)",
+                    background: "linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.75) 50%, #ffffff 100%)",
                   }}
                 />
 
-                {/* Lock label over blur */}
+                {/* Lock label */}
                 <div
-                  className="absolute inset-x-0 bottom-0 flex justify-center pb-5"
-                  style={{ height: "155px", alignItems: "flex-end" }}
+                  className="absolute inset-x-0 bottom-0 flex justify-center"
+                  style={{ paddingBottom: "18px", height: "160px", alignItems: "flex-end" }}
                 >
                   <div
-                    className="flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold shadow-sm"
+                    className="flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold"
                     style={{
                       background: "#ffffff",
-                      border: "1px solid #e5e7eb",
+                      border: "1.5px solid #c7d2fe",
                       color: "#4f46e5",
-                      boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                      boxShadow: "0 2px 12px rgba(99,102,241,0.15)",
                     }}
                   >
-                    <span>✦</span>
-                    <span>Your rewritten version is ready — unlock to download</span>
+                    <span>✦</span> Your rewritten version is ready — unlock to download
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* MISSING keywords — the gap */}
+            {/* Missing skills */}
             {missingSkills.length > 0 && (
               <div
                 className="rounded-2xl p-5"
-                style={{
-                  background: "#ffffff",
-                  border: "1px solid #fecaca",
-                  boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
-                }}
+                style={{ background: "#ffffff", border: "1px solid #fecaca" }}
               >
                 <div className="flex items-center justify-between mb-1">
                   <p className="text-sm font-bold" style={{ color: "#991b1b" }}>
-                    Keywords the ATS is looking for — not in your resume
+                    Keywords the hiring software looks for — missing from your resume
                   </p>
                   <span
-                    className="text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ml-3"
+                    className="shrink-0 ml-3 text-[10px] font-bold px-2 py-0.5 rounded-full"
                     style={{ background: "#fef2f2", color: "#dc2626", border: "1px solid #fecaca" }}
                   >
                     {missingSkills.length} missing
                   </span>
                 </div>
                 <p className="text-xs mb-4" style={{ color: "#9ca3af" }}>
-                  Each one is a gate the algorithm closes before a human reads your name.
+                  We weave every one into your rewritten resume naturally.
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  {missingSkills.map((skill, i) => (
+                  {missingSkills.map((s, i) => (
                     <div
-                      key={skill.name}
-                      className="chip-animate flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium"
-                      style={{
-                        background: "#fef2f2",
-                        border: "1px solid #fecaca",
-                        color: "#b91c1c",
-                        animationDelay: `${i * 40}ms`,
-                      }}
+                      key={s.name}
+                      className="chip-in flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium"
+                      style={{ background: "#fef2f2", border: "1px solid #fecaca", color: "#b91c1c", animationDelay: `${i * 40}ms` }}
                     >
-                      <span style={{ color: "#ef4444", fontSize: "9px" }}>✗</span>
-                      {skill.name}
+                      <span style={{ fontSize: "9px" }}>✗</span> {s.name}
                     </div>
                   ))}
                 </div>
-                <p className="text-[11px] mt-4 pt-3" style={{ color: "#9ca3af", borderTop: "1px solid #fef2f2" }}>
-                  ResuFit weaves every one of these naturally into your rewritten resume.
-                </p>
               </div>
             )}
 
-            {/* MATCHED keywords — the reassurance */}
+            {/* Matched skills */}
             {matchedSkills.length > 0 && (
               <div
                 className="rounded-2xl p-5"
-                style={{
-                  background: "#ffffff",
-                  border: "1px solid #e5e7eb",
-                  boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
-                }}
+                style={{ background: "#ffffff", border: "1px solid #e5e7eb" }}
               >
                 <div className="flex items-center justify-between mb-1">
                   <p className="text-sm font-bold" style={{ color: "#111827" }}>
                     Keywords already in your resume
                   </p>
                   <span
-                    className="text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ml-3"
+                    className="shrink-0 ml-3 text-[10px] font-bold px-2 py-0.5 rounded-full"
                     style={{ background: "#f0fdf4", color: "#15803d", border: "1px solid #bbf7d0" }}
                   >
                     {matchedSkills.length} matched ✓
@@ -325,37 +381,30 @@ export default function PreAnalysisScreen({
                   You&apos;re qualified — your resume just isn&apos;t representing you fully yet.
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  {matchedSkills.map((skill, i) => (
+                  {matchedSkills.map((s, i) => (
                     <div
-                      key={skill.name}
-                      className="chip-animate flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium"
+                      key={s.name}
+                      className="chip-in flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium"
                       style={{
-                        background: "#f0fdf4",
-                        border: "1px solid #bbf7d0",
-                        color: "#166534",
+                        background: "#f0fdf4", border: "1px solid #bbf7d0", color: "#166534",
                         animationDelay: `${(missingSkills.length + i) * 40}ms`,
                       }}
                     >
-                      <span style={{ color: "#16a34a", fontSize: "9px" }}>✓</span>
-                      {skill.name}
+                      <span style={{ fontSize: "9px" }}>✓</span> {s.name}
                     </div>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* FORMAT FIXES — framed as what we deliver */}
+            {/* Format fixes */}
             {formattingIssues.length > 0 && (
               <div
                 className="rounded-2xl p-5"
-                style={{ background: "#ffffff", border: "1px solid #e5e7eb", boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}
+                style={{ background: "#ffffff", border: "1px solid #e5e7eb" }}
               >
-                <p className="text-sm font-bold mb-1" style={{ color: "#111827" }}>
-                  We automatically fix these for you
-                </p>
-                <p className="text-xs mb-4" style={{ color: "#9ca3af" }}>
-                  Common issues that cause ATS systems to misread or reject resumes.
-                </p>
+                <p className="text-sm font-bold mb-1" style={{ color: "#111827" }}>We automatically fix these</p>
+                <p className="text-xs mb-4" style={{ color: "#9ca3af" }}>Common issues that cause hiring software to misread or skip resumes.</p>
                 <div className="space-y-2.5">
                   {formattingIssues.map((issue, i) => (
                     <div key={i} className="flex items-start gap-3">
@@ -373,22 +422,23 @@ export default function PreAnalysisScreen({
             )}
           </div>
 
-          {/* ── RIGHT: payment card ── */}
+          {/* ── RIGHT: payment ── */}
           <div className="space-y-3">
+
             <div
               className="rounded-2xl overflow-hidden"
               style={{
                 background: "#ffffff",
                 border: "1.5px solid #6366f1",
-                boxShadow: "0 8px 32px rgba(99,102,241,0.14), 0 2px 8px rgba(0,0,0,0.04)",
+                boxShadow: "0 8px 32px rgba(99,102,241,0.14)",
               }}
             >
-              {/* Card top accent */}
+              {/* Purple header */}
               <div
                 className="px-5 py-3 flex items-center justify-between"
                 style={{ background: "linear-gradient(135deg, #6366f1, #8b5cf6)" }}
               >
-                <p className="text-xs font-semibold text-white">Your ResuFit report</p>
+                <p className="text-xs font-bold text-white">Your tailored resume</p>
                 <span
                   className="text-[10px] font-bold px-2 py-0.5 rounded-full"
                   style={{ background: "rgba(255,255,255,0.2)", color: "#fff" }}
@@ -398,18 +448,17 @@ export default function PreAnalysisScreen({
               </div>
 
               <div className="p-5">
-                {/* Personalised benefit list */}
                 <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: "#9ca3af" }}>
                   What&apos;s included
                 </p>
                 <ul className="space-y-2 mb-5">
                   {[
-                    "Full AI rewrite tailored to this role",
-                    missingCount > 0 ? `${missingCount} missing keywords woven in` : "Keyword gaps closed",
+                    "Resume rewritten and matched to this role",
+                    missingCount > 0 ? `${missingCount} missing keywords added` : "All keyword gaps closed",
                     formattingIssues.length > 0
-                      ? `${formattingIssues.length} format issue${formattingIssues.length > 1 ? "s" : ""} fixed automatically`
+                      ? `${formattingIssues.length} format issue${formattingIssues.length > 1 ? "s" : ""} fixed`
                       : "ATS format verified",
-                    "Download-ready PDF, instantly",
+                    "Download as PDF or editable Word",
                   ].map((item) => (
                     <li key={item} className="flex items-start gap-2.5">
                       <div
@@ -425,19 +474,12 @@ export default function PreAnalysisScreen({
 
                 {/* Price */}
                 <div className="mb-4">
-                  <p
-                    className="font-bold leading-none"
-                    style={{ fontSize: "2.5rem", color: "#111827", letterSpacing: "-0.03em" }}
-                  >
-                    $5
-                    <span className="text-sm font-normal ml-1" style={{ color: "#9ca3af" }}>one-time</span>
+                  <p className="font-bold leading-none" style={{ fontSize: "2.4rem", color: "#111827", letterSpacing: "-0.03em" }}>
+                    $5 <span className="text-sm font-normal" style={{ color: "#9ca3af" }}>one-time</span>
                   </p>
-                  <p className="text-xs mt-1" style={{ color: "#9ca3af" }}>
-                    Less than a coffee. Potentially life-changing.
-                  </p>
+                  <p className="text-xs mt-1" style={{ color: "#9ca3af" }}>Less than a coffee. Potentially life-changing.</p>
                 </div>
 
-                {/* Email */}
                 <input
                   type="email"
                   value={email}
@@ -447,7 +489,6 @@ export default function PreAnalysisScreen({
                   style={{ background: "#f9fafb", border: "1.5px solid #e5e7eb", color: "#111827" }}
                 />
 
-                {/* Primary CTA */}
                 <button
                   onClick={() => onPurchase("one_time")}
                   className="w-full py-3.5 rounded-xl text-sm font-bold text-white transition-all"
@@ -457,41 +498,36 @@ export default function PreAnalysisScreen({
                     letterSpacing: "-0.01em",
                   }}
                 >
-                  Get my optimised resume →
+                  Unlock my resume — $5 →
                 </button>
 
-                {/* Trust line */}
                 <div className="flex items-center justify-center gap-3 mt-3">
-                  <span className="text-[10px]" style={{ color: "#d1d5db" }}>🔒 Stripe</span>
-                  <span style={{ color: "#e5e7eb" }}>·</span>
-                  <span className="text-[10px]" style={{ color: "#d1d5db" }}>Apple Pay</span>
-                  <span style={{ color: "#e5e7eb" }}>·</span>
-                  <span className="text-[10px]" style={{ color: "#d1d5db" }}>Google Pay</span>
+                  {["🔒 Stripe", "Apple Pay", "Google Pay"].map((t, i) => (
+                    <span key={t} className="flex items-center gap-2">
+                      {i > 0 && <span style={{ color: "#e5e7eb" }}>·</span>}
+                      <span className="text-[10px]" style={{ color: "#d1d5db" }}>{t}</span>
+                    </span>
+                  ))}
                 </div>
               </div>
             </div>
 
-            {/* Pro — very secondary */}
+            {/* Pro */}
             <div
-              className="rounded-2xl p-4 cursor-pointer transition-all"
+              className="rounded-2xl p-4 cursor-pointer"
               style={{ background: "#ffffff", border: "1px solid #e5e7eb" }}
               onClick={() => onPurchase("pro")}
             >
               <div className="flex items-center justify-between mb-1">
                 <span className="text-sm font-medium" style={{ color: "#374151" }}>ResuFit Pro</span>
-                <span
-                  className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
-                  style={{ background: "#f5f3ff", color: "#7c3aed" }}
-                >
+                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "#f5f3ff", color: "#7c3aed" }}>
                   Best value
                 </span>
               </div>
               <p className="text-base font-bold" style={{ color: "#374151" }}>
                 $15 <span className="text-xs font-normal" style={{ color: "#9ca3af" }}>/month</span>
               </p>
-              <p className="text-xs mt-0.5 mb-3" style={{ color: "#9ca3af" }}>
-                30 optimisations · Dashboard · Cancel anytime
-              </p>
+              <p className="text-xs mt-0.5 mb-3" style={{ color: "#9ca3af" }}>30 optimisations · Dashboard · Cancel anytime</p>
               <button
                 className="w-full py-2 rounded-xl text-xs font-medium"
                 style={{ background: "#f9fafb", border: "1px solid #e5e7eb", color: "#6b7280" }}
@@ -500,7 +536,6 @@ export default function PreAnalysisScreen({
               </button>
             </div>
 
-            {/* Marketing opt-in */}
             <label className="flex items-start gap-2 cursor-pointer px-1">
               <input
                 type="checkbox"
@@ -522,11 +557,11 @@ export default function PreAnalysisScreen({
         </div>
       </div>
 
-      {/* ── STICKY MOBILE CTA ────────────────────────────────────── */}
+      {/* Sticky mobile CTA */}
       <div
         className="fixed bottom-0 inset-x-0 lg:hidden px-4 py-3"
         style={{
-          background: "rgba(255,255,255,0.95)",
+          background: "rgba(255,255,255,0.96)",
           backdropFilter: "blur(12px)",
           WebkitBackdropFilter: "blur(12px)",
           borderTop: "1px solid #f3f4f6",
@@ -541,7 +576,7 @@ export default function PreAnalysisScreen({
             boxShadow: "0 4px 16px rgba(99,102,241,0.3)",
           }}
         >
-          Get my optimised resume — $5 →
+          Unlock my resume — $5 →
         </button>
       </div>
     </main>
