@@ -32,9 +32,15 @@ export interface RateLimitResult {
 }
 
 export async function checkRateLimit(identifier: string): Promise<RateLimitResult> {
-  const limiter = getRatelimiter();
-  const { success, remaining, reset } = await limiter.limit(identifier);
-  return { success, remaining, reset };
+  try {
+    const limiter = getRatelimiter();
+    const { success, remaining, reset } = await limiter.limit(identifier);
+    return { success, remaining, reset };
+  } catch (err) {
+    // If Redis is unavailable, fail open so users aren't blocked by an infra issue.
+    console.error("Rate limit check failed (Redis unavailable?):", err);
+    return { success: true, remaining: 1, reset: 0 };
+  }
 }
 
 // Helper: extract IP from Next.js request
