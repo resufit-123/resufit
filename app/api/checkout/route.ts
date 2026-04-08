@@ -5,8 +5,8 @@ import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import type { CheckoutRequest } from "@/types";
 
 // POST /api/checkout
-// Creates a Stripe Checkout session and returns the URL.
-// Requires authentication — entitlement is written by the webhook, NOT here.
+// One-time ($5): no auth required — guest checkout, entitlement validated via Stripe session ID.
+// Pro / Annual: auth required — entitlement written by Stripe webhook to subscriptions table.
 
 export async function POST(request: NextRequest) {
   // 1. Rate limit
@@ -16,14 +16,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Too many requests." }, { status: 429 });
   }
 
-  // 2. Authentication
-  const supabase = await createClient();
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-  if (authError || !user) {
-    return NextResponse.json({ error: "Authentication required." }, { status: 401 });
-  }
-
-  // 3. Parse body
+  // 2. Parse body first — plan determines whether auth is required
   let body: CheckoutRequest;
   try {
     body = await request.json();
@@ -31,18 +24,31 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
   }
 
-  const { plan, optimizationId, email, marketingOptIn } = body;
+  const { plan, email, marketingOptIn } = body;
 
   const validPlans = ["one_time", "pro", "annual"];
   if (!validPlans.includes(plan)) {
     return NextResponse.json({ error: "Invalid plan." }, { status: 400 });
   }
 
-  // 4. Detect currency from Vercel's geo header
+  const isSubscription = plan === "pro" || plan === "annual";
+
+  // 3. Auth — required for Pro/Annual, optional for one-time guest checkout
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (isSubscription && !user) {
+    return NextResponse.json(
+      { error: "Please create an account before subscribing to Pro." },
+      { status: 401 }
+    );
+  }
+
+  // 4. Detect currency
   const countryCode = request.headers.get("x-vercel-ip-country");
   const currency = detectCurrency(countryCode);
 
-  // 5. Resolve the correct Stripe Price ID
+  // 5. Resolve Stripe Price ID
   let priceId: string;
   try {
     priceId = getPriceId(plan, currency);
@@ -52,40 +58,28 @@ export async function POST(request: NextRequest) {
   }
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL!;
-  const isSubscription = plan === "pro" || plan === "annual";
 
   // 6. Create Stripe Checkout session
   const session = await stripe.checkout.sessions.create({
     mode: isSubscription ? "subscription" : "payment",
     line_items: [{ price: priceId, quantity: 1 }],
-    customer_email: email || user.email,
-    success_url: `${appUrl}/results/${optimizationId ?? ""}?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${appUrl}/?cancelled=true`,
+    ...(email || user?.email ? { customer_email: email || user?.email } : {}),
+    success_url: `${appUrl}/results/new?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${appUrl}/`,
     allow_promotion_codes: true,
-    // Pre-fill email to reduce friction
-    ...(email && { customer_email: email }),
-    // Pass metadata so the webhook can write the entitlement
-    metadata: {
-      user_id: user.id,
-      plan,
-      optimization_id: optimizationId ?? "",
-      marketing_opt_in: marketingOptIn ? "true" : "false",
-    },
-    ...(isSubscription && {
-      subscription_data: {
-        metadata: {
-          user_id: user.id,
-          plan,
-        },
-      },
-    }),
-    // Payment method config — Apple Pay, Google Pay, Link all enabled by default
     payment_method_types: ["card"],
-    payment_method_options: {
-      card: {
-        request_three_d_secure: "automatic",
-      },
+    metadata: {
+      plan,
+      marketing_opt_in: marketingOptIn ? "true" : "false",
+      ...(user ? { user_id: user.id } : {}),
     },
+    ...(isSubscription && user
+      ? {
+          subscription_data: {
+            metadata: { user_id: user.id, plan },
+          },
+        }
+      : {}),
   });
 
   return NextResponse.json({ url: session.url });

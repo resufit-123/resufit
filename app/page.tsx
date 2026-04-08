@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback } from "react";
 import DropZone from "@/components/DropZone";
 import ProcessingScreen from "@/components/ProcessingScreen";
 import Logo from "@/components/Logo";
@@ -41,49 +41,8 @@ export default function HomePage() {
   const [jobDescription, setJobDescription] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isFetchingUrl, setIsFetchingUrl] = useState(false);
-  const [fetchedFromUrl, setFetchedFromUrl] = useState(false);
-  const [urlError, setUrlError] = useState<string | null>(null);
 
   const canSubmit = file !== null && jobDescription.trim().length > 20;
-
-  const fetchJobFromUrl = useCallback(async (url: string) => {
-    setIsFetchingUrl(true);
-    setUrlError(null);
-    setFetchedFromUrl(false);
-    try {
-      const res = await fetch("/api/fetch-job", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Could not fetch that URL.");
-      setJobDescription(data.text);
-      setFetchedFromUrl(true);
-    } catch (err) {
-      setUrlError(err instanceof Error ? err.message : "Could not fetch that URL.");
-    } finally {
-      setIsFetchingUrl(false);
-    }
-  }, []);
-
-  const handleJobDescriptionPaste = useCallback(
-    (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
-      const pasted = e.clipboardData.getData("text").trim();
-      try {
-        const url = new URL(pasted);
-        if (url.protocol === "http:" || url.protocol === "https:") {
-          e.preventDefault();
-          setJobDescription(pasted); // show the URL in the box while fetching
-          fetchJobFromUrl(pasted);
-        }
-      } catch {
-        // Not a URL — let normal paste proceed
-      }
-    },
-    [fetchJobFromUrl]
-  );
 
   const handleSubmit = useCallback(async () => {
     if (!canSubmit || !file) return;
@@ -115,7 +74,9 @@ export default function HomePage() {
       sessionStorage.setItem("rf_job_description", jobDescription);
       sessionStorage.setItem("rf_file_name", file.name);
 
-      window.location.href = "/sign-in?redirectTo=/results/new";
+      // Go straight to results — no account required.
+      // The paywall on the results page handles payment (one-time or Pro).
+      window.location.href = "/results/new";
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
       setIsProcessing(false);
@@ -131,7 +92,6 @@ export default function HomePage() {
       className="flex-1 flex flex-col"
       style={{
         background: "#0f172a",
-        // Subtle radial glow top-right
         backgroundImage:
           "radial-gradient(ellipse 60% 50% at 75% -5%, rgba(124,58,237,0.18) 0%, transparent 70%)",
       }}
@@ -154,7 +114,6 @@ export default function HomePage() {
 
           {/* ── Left column: copy ── */}
           <div className="flex-1 mb-10 lg:mb-0">
-            {/* Headline */}
             <h1
               className="font-bold leading-tight mb-5"
               style={{
@@ -176,7 +135,6 @@ export default function HomePage() {
               {" "}resume, fast.
             </h1>
 
-            {/* Subtext */}
             <p
               className="text-base leading-relaxed mb-8 max-w-lg"
               style={{ color: "#94a3b8" }}
@@ -186,7 +144,6 @@ export default function HomePage() {
               the hiring manager sees it.
             </p>
 
-            {/* Value props */}
             <ul className="space-y-4 mb-10">
               {VALUE_PROPS.map((vp, i) => (
                 <li key={i} className="flex items-start gap-3">
@@ -198,7 +155,6 @@ export default function HomePage() {
               ))}
             </ul>
 
-            {/* Pricing snippet */}
             <div
               className="inline-flex items-center gap-3 rounded-xl px-4 py-3 text-sm"
               style={{
@@ -243,67 +199,32 @@ export default function HomePage() {
                 </p>
               </div>
 
-              {/* Divider */}
               <div style={{ borderTop: "1px solid #1e293b", marginLeft: "-24px", marginRight: "-24px" }} />
 
               {/* Step 2 */}
-              <div className="relative">
+              <div>
                 <p
                   className="text-xs font-semibold uppercase tracking-wider mb-2"
                   style={{ color: "#94a3b8" }}
                 >
-                  Step 2 — Paste the job description or a link to the posting
+                  Step 2 — Paste the job description
                 </p>
                 <div className="relative">
                   <textarea
                     value={jobDescription}
-                    onChange={(e) => {
-                      setJobDescription(e.target.value);
-                      setFetchedFromUrl(false);
-                      setUrlError(null);
-                    }}
-                    onPaste={handleJobDescriptionPaste}
-                    placeholder="Paste the job description or drop in a URL to the posting..."
+                    onChange={(e) => setJobDescription(e.target.value)}
+                    placeholder="Paste the full job description here..."
                     rows={6}
-                    disabled={isFetchingUrl}
                     className="w-full rounded-xl p-4 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all"
                     style={{
                       color: "#e2e8f0",
-                      background: isFetchingUrl
-                        ? "rgba(124,58,237,0.04)"
-                        : jobDescription.length > 20
+                      background: jobDescription.length > 20
                         ? "rgba(16,185,129,0.04)"
                         : "rgba(15,23,42,0.5)",
-                      border: `2px solid ${
-                        isFetchingUrl
-                          ? "#7c3aed"
-                          : jobDescription.length > 20
-                          ? "#10b981"
-                          : "#334155"
-                      }`,
-                      opacity: isFetchingUrl ? 0.7 : 1,
+                      border: `2px solid ${jobDescription.length > 20 ? "#10b981" : "#334155"}`,
                     }}
                   />
-                  {isFetchingUrl && (
-                    <div className="absolute inset-0 flex items-center justify-center rounded-xl">
-                      <div className="flex items-center gap-2 text-xs" style={{ color: "#a78bfa" }}>
-                        <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none">
-                          <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.25"/>
-                          <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
-                        </svg>
-                        Fetching job description…
-                      </div>
-                    </div>
-                  )}
-                  {!isFetchingUrl && fetchedFromUrl && (
-                    <div
-                      className="absolute top-3 right-3 flex items-center gap-1.5 text-xs px-2 py-1 rounded-lg"
-                      style={{ background: "rgba(16,185,129,0.15)", color: "#10b981" }}
-                    >
-                      <span className="font-bold">✓</span> Fetched from URL
-                    </div>
-                  )}
-                  {!isFetchingUrl && !fetchedFromUrl && jobDescription.length > 20 && (
+                  {jobDescription.length > 20 && (
                     <div
                       className="absolute top-3 right-3 w-6 h-6 rounded-full flex items-center justify-center"
                       style={{ background: "#10b981" }}
@@ -312,11 +233,6 @@ export default function HomePage() {
                     </div>
                   )}
                 </div>
-                {urlError && (
-                  <p className="text-xs mt-2" style={{ color: "#f87171" }}>
-                    {urlError}
-                  </p>
-                )}
               </div>
 
               {/* Error */}

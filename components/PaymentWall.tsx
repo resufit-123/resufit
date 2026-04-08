@@ -20,6 +20,7 @@ export default function PaymentWall({
   return (
     <main className="min-h-screen bg-[#0f172a] flex flex-col items-center justify-center px-6 py-10">
       <div className="w-full max-w-sm">
+
         {/* Blurred preview hint */}
         <div
           className="rounded-2xl p-5 mb-6 text-center"
@@ -27,95 +28,105 @@ export default function PaymentWall({
         >
           <div className="paywall-blur text-xs text-[#64748b] space-y-1 mb-3 select-none">
             <p>Senior Product Manager · 8 years experience</p>
-            <p>ATS score improved from 34% → 91%</p>
-            <p>12 keywords added · 3 format issues fixed</p>
+            <p>12 keywords added · 3 formatting issues fixed</p>
+            <p>Resume tailored to role requirements</p>
           </div>
-          <p className="text-sm font-semibold text-white">
-            Your optimized resume is ready
-          </p>
-          <p className="text-xs text-[#64748b] mt-1">
-            Download to see your results
-          </p>
+          <p className="text-sm font-semibold text-white">Your optimised resume is ready</p>
+          <p className="text-xs mt-1" style={{ color: "#64748b" }}>Choose a plan to unlock it</p>
         </div>
 
-        {/* Email capture (GDPR compliant) */}
-        <div className="space-y-2 mb-5">
+        {/* ── One-time: no account needed ── */}
+        <div
+          className="rounded-2xl p-5 mb-3 cursor-pointer transition-all"
+          style={{ background: "#1e293b", border: "2px solid #8b5cf6" }}
+          onClick={() => onPurchase("one_time")}
+        >
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-sm font-semibold text-white">One-time download</span>
+            <span
+              className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
+              style={{ background: "rgba(16,185,129,0.15)", color: "#10b981" }}
+            >
+              No account needed
+            </span>
+          </div>
+          <p className="text-2xl font-bold text-white mb-1">
+            $5
+            <span className="text-sm font-normal" style={{ color: "#64748b" }}> one-time</span>
+          </p>
+          <p className="text-xs mb-3" style={{ color: "#94a3b8" }}>
+            Single optimised resume · Pay and download instantly
+          </p>
+
+          {/* Email for receipt (optional but shown before Stripe) */}
           <input
             type="email"
             value={email}
-            onChange={(e) => onEmailChange(e.target.value)}
-            placeholder="Email address — we'll send your resume here"
-            className="w-full bg-[#1e293b] border border-[#334155] rounded-xl px-4 py-3 text-sm text-white placeholder-[#475569] focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all"
+            onChange={(e) => { e.stopPropagation(); onEmailChange(e.target.value); }}
+            onClick={(e) => e.stopPropagation()}
+            placeholder="Email for receipt (optional)"
+            className="w-full rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-violet-500 mb-3 transition-all"
+            style={{ background: "rgba(15,23,42,0.6)", border: "1px solid #334155" }}
           />
-          <label className="flex items-start gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={marketingOptIn}
-              onChange={(e) => onMarketingOptInChange(e.target.checked)}
-              className="mt-0.5 flex-shrink-0"
-              style={{ accentColor: "#8b5cf6" }}
-            />
-            <span className="text-[11px] text-[#475569]">
-              Send me occasional job search tips from ResuFit (optional)
+
+          <button
+            className="w-full py-2.5 rounded-xl text-sm font-semibold text-white transition-all"
+            style={{ background: "linear-gradient(135deg, #7c3aed, #6366f1)" }}
+          >
+            Download for $5 →
+          </button>
+        </div>
+
+        {/* ── Pro: account required ── */}
+        <div
+          className="rounded-2xl p-5 cursor-pointer transition-all"
+          style={{ background: "rgba(15,23,42,0.5)", border: "1px solid #334155" }}
+          onClick={() => onPurchase("pro")}
+        >
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-sm font-medium" style={{ color: "#94a3b8" }}>ResuFit Pro</span>
+            <span
+              className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
+              style={{ background: "rgba(139,92,246,0.12)", color: "#a78bfa" }}
+            >
+              Best value
             </span>
-          </label>
+          </div>
+          <p className="text-xl font-bold mb-1" style={{ color: "#94a3b8" }}>
+            $15
+            <span className="text-sm font-normal" style={{ color: "#475569" }}>/month</span>
+          </p>
+          <p className="text-xs mb-3" style={{ color: "#475569" }}>
+            30 optimisations/month · Dashboard · Cancel anytime
+          </p>
+          <button
+            className="w-full py-2 rounded-xl text-sm font-medium transition-all"
+            style={{
+              background: "transparent",
+              border: "1px solid #334155",
+              color: "#94a3b8",
+            }}
+          >
+            Create account &amp; get Pro →
+          </button>
         </div>
 
-        {/* Pricing options — Pro anchored first */}
-        <div className="space-y-3">
-          {/* Pro Plan */}
-          <div
-            className="rounded-2xl p-5 cursor-pointer hover:border-violet-500 transition-all"
-            style={{ background: "#1e293b", border: "2px solid #8b5cf6" }}
-            onClick={() => onPurchase("pro")}
-          >
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-sm font-semibold text-white">ResuFit Pro</span>
-              <span
-                className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
-                style={{ background: "rgba(139,92,246,0.15)", color: "#a78bfa" }}
-              >
-                Most popular
-              </span>
-            </div>
-            <p className="text-2xl font-bold text-white mb-1">
-              $15
-              <span className="text-sm font-normal text-[#64748b]">/month</span>
-            </p>
-            <p className="text-xs text-[#94a3b8]">30 optimizations/month · Cancel anytime</p>
-            <button
-              className="mt-3 w-full py-2.5 rounded-xl text-sm font-semibold text-white transition-all"
-              style={{ background: "linear-gradient(135deg, #7c3aed, #6366f1)" }}
-            >
-              Get Pro →
-            </button>
-          </div>
+        {/* Marketing opt-in */}
+        <label className="flex items-start gap-2 cursor-pointer mt-4 mb-3">
+          <input
+            type="checkbox"
+            checked={marketingOptIn}
+            onChange={(e) => onMarketingOptInChange(e.target.checked)}
+            className="mt-0.5 flex-shrink-0"
+            style={{ accentColor: "#8b5cf6" }}
+          />
+          <span className="text-[11px]" style={{ color: "#475569" }}>
+            Send me occasional job search tips from ResuFit (optional)
+          </span>
+        </label>
 
-          {/* One-time */}
-          <div
-            className="rounded-2xl p-5 cursor-pointer hover:border-slate-500 transition-all"
-            style={{ background: "rgba(15,23,42,0.5)", border: "1px solid #334155" }}
-            onClick={() => onPurchase("one_time")}
-          >
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-sm font-medium text-[#94a3b8]">One-time download</span>
-            </div>
-            <p className="text-xl font-bold text-[#94a3b8] mb-1">
-              $5
-              <span className="text-sm font-normal text-[#475569]"> one-time</span>
-            </p>
-            <p className="text-xs text-[#475569]">Single optimized resume · No subscription</p>
-            <button
-              className="mt-3 w-full py-2 rounded-xl text-sm font-medium text-[#94a3b8] transition-all"
-              style={{ background: "transparent", border: "1px solid #334155" }}
-            >
-              Download for $5
-            </button>
-          </div>
-        </div>
-
-        <p className="text-center text-[11px] text-[#334155] mt-4">
-          Secured by Stripe · Apple Pay & Google Pay accepted
+        <p className="text-center text-[11px]" style={{ color: "#334155" }}>
+          Secured by Stripe · Apple Pay &amp; Google Pay accepted
         </p>
       </div>
     </main>

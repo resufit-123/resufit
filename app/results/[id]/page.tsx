@@ -53,11 +53,19 @@ export default function ResultsPage() {
       return;
     }
 
+    // For guest one-time users, pass the Stripe session ID as proof of payment
+    const stripeSessionId = searchParams.get("session_id");
+
     try {
       const res = await fetch("/api/optimize", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ resumeText, jobDescription, template: selectedTemplate }),
+        body: JSON.stringify({
+          resumeText,
+          jobDescription,
+          template: selectedTemplate,
+          ...(stripeSessionId ? { stripeSessionId } : {}),
+        }),
       });
 
       const data = await res.json();
@@ -119,20 +127,28 @@ export default function ResultsPage() {
   }
 
   async function handlePurchase(plan: "one_time" | "pro" | "annual") {
+    // Pro/Annual requires an account — send to sign-up first, checkout happens after
+    if (plan === "pro" || plan === "annual") {
+      window.location.href = `/sign-up?plan=${plan}&redirectTo=/results/new`;
+      return;
+    }
+
+    // One-time: no account needed, go straight to Stripe checkout
     try {
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          plan,
-          optimizationId: optimizationId !== "new" ? optimizationId : undefined,
-          email,
-          marketingOptIn,
-        }),
+        body: JSON.stringify({ plan, email, marketingOptIn }),
       });
 
-      const { url } = await res.json();
-      if (url) window.location.href = url;
+      let data: { url?: string; error?: string } = {};
+      try { data = await res.json(); } catch {}
+
+      if (!res.ok) {
+        console.error("Checkout error:", data.error);
+        return;
+      }
+      if (data.url) window.location.href = data.url;
     } catch (err) {
       console.error("Checkout error:", err);
     }
