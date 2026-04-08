@@ -92,42 +92,40 @@ export default function HomePage() {
       }}
     >
       {/* ── Top nav ── */}
-      <header className="w-full max-w-6xl mx-auto px-6 lg:px-10 pt-7 pb-4 flex items-center justify-between">
+      <header className="w-full max-w-6xl mx-auto px-6 lg:px-10 pt-6 pb-4 flex items-center justify-between gap-4">
         <Logo size="md" />
-        <nav className="hidden sm:flex items-center gap-6 text-sm" style={{ color: "#64748b" }}>
-          <a href="/sign-in" className="hover:text-white transition-colors">Sign in</a>
-          <a
-            href="/sign-up"
-            className="px-4 py-2 rounded-lg text-white font-medium transition-all hover:opacity-90"
-            style={{ background: "linear-gradient(135deg, #7c3aed, #6366f1)" }}
-          >
-            Get started
-          </a>
-        </nav>
+
+        {/* Centre badge — hidden on small screens */}
+        <div
+          className="hidden md:inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs"
+          style={{
+            background: "#1e293b",
+            border: "1px solid #334155",
+            color: "#94a3b8",
+          }}
+        >
+          <span
+            className="w-1.5 h-1.5 rounded-full inline-block shrink-0"
+            style={{ background: "#10b981" }}
+          />
+          AI-powered · Results in under 10 seconds
+        </div>
+
+        <a
+          href="/sign-in"
+          className="text-sm transition-colors shrink-0"
+          style={{ color: "#64748b" }}
+        >
+          Sign in
+        </a>
       </header>
 
       {/* ── Main content ── */}
-      <main className="flex-1 w-full max-w-6xl mx-auto px-6 lg:px-10 py-10 lg:py-16">
+      <main className="flex-1 w-full max-w-6xl mx-auto px-6 lg:px-10 pt-8 pb-10 lg:pt-10 lg:pb-16">
         <div className="flex flex-col lg:flex-row lg:items-center lg:gap-16">
 
           {/* ── Left column: copy ── */}
           <div className="flex-1 mb-10 lg:mb-0">
-            {/* Badge */}
-            <div
-              className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs mb-7"
-              style={{
-                background: "#1e293b",
-                border: "1px solid #334155",
-                color: "#94a3b8",
-              }}
-            >
-              <span
-                className="w-1.5 h-1.5 rounded-full inline-block"
-                style={{ background: "#10b981" }}
-              />
-              AI-powered · Results in under 10 seconds
-            </div>
-
             {/* Headline */}
             <h1
               className="font-bold leading-tight mb-5"
@@ -137,7 +135,7 @@ export default function HomePage() {
                 letterSpacing: "-0.02em",
               }}
             >
-              Your resume,{" "}
+              A tailored, ATS-ready resume{" "}
               <span
                 style={{
                   background: "linear-gradient(135deg, #a78bfa, #818cf8)",
@@ -145,10 +143,10 @@ export default function HomePage() {
                   WebkitTextFillColor: "transparent",
                 }}
               >
-                tailored to the job.
+                for every role.
               </span>
               <br />
-              Past the ATS. Into the room.
+              In 10 seconds.
             </h1>
 
             {/* Subtext */}
