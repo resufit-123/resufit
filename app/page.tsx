@@ -212,7 +212,7 @@ export default function HomePage() {
                 </p>
                 <DropZone file={file} onFileChange={setFile} />
                 <p className="text-[11px] text-center mt-2" style={{ color: "#475569" }}>
-                  🔒 Your resume is never stored or shared
+                  🔒 Secure and private — never shared with third parties
                 </p>
               </div>
 
