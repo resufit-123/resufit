@@ -7,24 +7,22 @@ export default function Footer() {
   return (
     <footer
       className="w-full border-t mt-auto"
-      style={{ borderColor: "#1e293b", background: "#080f1a" }}
+      style={{ borderColor: "#f3f4f6", background: "#ffffff" }}
     >
-      <div className="max-w-4xl mx-auto px-6 py-10">
+      <div className="max-w-5xl mx-auto px-6 py-10">
         {/* Top row */}
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-8 mb-8">
-          {/* Brand */}
           <div className="flex flex-col gap-3">
             <Logo size="sm" linkToHome />
-            <p className="text-xs leading-relaxed max-w-xs" style={{ color: "#475569" }}>
+            <p className="text-xs leading-relaxed max-w-xs" style={{ color: "#9ca3af" }}>
               AI-powered resume optimiser that helps you get past
               ATS filters and land more interviews.
             </p>
           </div>
 
-          {/* Links */}
           <div className="flex gap-12 text-sm">
             <div className="flex flex-col gap-2.5">
-              <p className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: "#334155" }}>
+              <p className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: "#d1d5db" }}>
                 Product
               </p>
               <FooterLink href="/">Home</FooterLink>
@@ -32,7 +30,7 @@ export default function Footer() {
               <FooterLink href="/sign-up">Get started</FooterLink>
             </div>
             <div className="flex flex-col gap-2.5">
-              <p className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: "#334155" }}>
+              <p className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: "#d1d5db" }}>
                 Legal
               </p>
               <FooterLink href="/privacy">Privacy Policy</FooterLink>
@@ -40,7 +38,7 @@ export default function Footer() {
               <FooterLink href="/cookies">Cookie Policy</FooterLink>
             </div>
             <div className="flex flex-col gap-2.5">
-              <p className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: "#334155" }}>
+              <p className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: "#d1d5db" }}>
                 Support
               </p>
               <FooterLink href="mailto:hello@resufit.co">Contact</FooterLink>
@@ -48,21 +46,17 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Bottom row */}
+        {/* Bottom */}
         <div
           className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-6 text-xs"
-          style={{ borderTop: "1px solid #1e293b", color: "#334155" }}
+          style={{ borderTop: "1px solid #f3f4f6", color: "#d1d5db" }}
         >
           <p>© {year} ResuFit. All rights reserved.</p>
           <p>
             Registered in England &amp; Wales ·{" "}
-            <Link href="/privacy" className="hover:text-slate-400 transition-colors">
-              Privacy
-            </Link>{" "}
-            ·{" "}
-            <Link href="/terms" className="hover:text-slate-400 transition-colors">
-              Terms
-            </Link>
+            <Link href="/privacy" className="hover:text-gray-400 transition-colors">Privacy</Link>
+            {" "}·{" "}
+            <Link href="/terms" className="hover:text-gray-400 transition-colors">Terms</Link>
           </p>
         </div>
       </div>
@@ -72,14 +66,10 @@ export default function Footer() {
 
 function FooterLink({ href, children }: { href: string; children: React.ReactNode }) {
   const isExternal = href.startsWith("mailto:");
-  const cls = "text-xs transition-colors text-slate-500 hover:text-slate-400";
+  const cls = "text-xs transition-colors text-gray-400 hover:text-gray-600";
   return isExternal ? (
-    <a href={href} className={cls}>
-      {children}
-    </a>
+    <a href={href} className={cls}>{children}</a>
   ) : (
-    <Link href={href} className={cls}>
-      {children}
-    </Link>
+    <Link href={href} className={cls}>{children}</Link>
   );
 }

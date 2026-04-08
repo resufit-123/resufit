@@ -4,14 +4,14 @@ import { useState, useCallback } from "react";
 import DropZone from "@/components/DropZone";
 import ProcessingScreen from "@/components/ProcessingScreen";
 import Logo from "@/components/Logo";
-import type { OptimizationResult, Template } from "@/types";
+import type { Template } from "@/types";
 
 const VALUE_PROPS = [
   {
     icon: (
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <path d="M8 1.5a6.5 6.5 0 1 1 0 13 6.5 6.5 0 0 1 0-13z" stroke="#10b981" strokeWidth="1.4" />
-        <polyline points="5,8 7,10 11,6" stroke="#10b981" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M8 1.5a6.5 6.5 0 1 1 0 13 6.5 6.5 0 0 1 0-13z" stroke="#6366f1" strokeWidth="1.4" />
+        <polyline points="5,8 7,10 11,6" stroke="#6366f1" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     ),
     text: "Scanned against ATS criteria from 50+ hiring platforms",
@@ -19,16 +19,16 @@ const VALUE_PROPS = [
   {
     icon: (
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <path d="M2 8h2.5M8 2v2.5M11.5 8H14M8 11.5V14" stroke="#a78bfa" strokeWidth="1.4" strokeLinecap="round" />
-        <circle cx="8" cy="8" r="3" stroke="#a78bfa" strokeWidth="1.4" />
+        <path d="M2 8h2.5M8 2v2.5M11.5 8H14M8 11.5V14" stroke="#6366f1" strokeWidth="1.4" strokeLinecap="round" />
+        <circle cx="8" cy="8" r="3" stroke="#6366f1" strokeWidth="1.4" />
       </svg>
     ),
-    text: "ResuFit optimises your resume for the job that you want",
+    text: "ResuFit rewrites your resume around the exact role",
   },
   {
     icon: (
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <path d="M3 4h10M3 8h7M3 12h4" stroke="#64748b" strokeWidth="1.4" strokeLinecap="round" />
+        <path d="M3 4h10M3 8h7M3 12h4" stroke="#10b981" strokeWidth="1.4" strokeLinecap="round" />
         <circle cx="13" cy="12" r="2" fill="#10b981" />
       </svg>
     ),
@@ -83,7 +83,7 @@ export default function HomePage() {
         analysis = await analyseRes.json();
       }
 
-      // Persist everything for the results page
+      // Persist for the results page
       sessionStorage.setItem("rf_resume_text", resumeText);
       sessionStorage.setItem("rf_job_description", jobDescription);
       sessionStorage.setItem("rf_file_name", file.name);
@@ -106,41 +106,41 @@ export default function HomePage() {
     <div
       className="flex-1 flex flex-col"
       style={{
-        background: "#0f172a",
+        background: "#ffffff",
         backgroundImage:
-          "radial-gradient(ellipse 60% 50% at 75% -5%, rgba(124,58,237,0.18) 0%, transparent 70%)",
+          "radial-gradient(ellipse 70% 50% at 80% -10%, rgba(99,102,241,0.07) 0%, transparent 65%)",
       }}
     >
-      {/* ── Top nav ── */}
+      {/* ── Nav ── */}
       <header className="w-full max-w-6xl mx-auto px-6 lg:px-10 pt-6 pb-4 flex items-center justify-between gap-4">
         <Logo size="md" />
         <a
           href="/sign-in"
           className="text-sm transition-colors shrink-0"
-          style={{ color: "#64748b" }}
+          style={{ color: "#9ca3af" }}
         >
           Sign in
         </a>
       </header>
 
-      {/* ── Main content ── */}
-      <main className="flex-1 w-full max-w-6xl mx-auto px-6 lg:px-10 pt-8 pb-10 lg:pt-10 lg:pb-16">
+      {/* ── Main ── */}
+      <main className="flex-1 w-full max-w-6xl mx-auto px-6 lg:px-10 pt-10 pb-12 lg:pt-14 lg:pb-20">
         <div className="flex flex-col lg:flex-row lg:items-center lg:gap-16">
 
-          {/* ── Left column: copy ── */}
-          <div className="flex-1 mb-10 lg:mb-0">
+          {/* ── Left: copy ── */}
+          <div className="flex-1 mb-10 lg:mb-0 flex flex-col items-center text-center lg:items-start lg:text-left">
             <h1
               className="font-bold leading-tight mb-5"
               style={{
                 fontSize: "clamp(2rem, 4vw, 3.25rem)",
-                color: "#f8fafc",
+                color: "#111827",
                 letterSpacing: "-0.02em",
               }}
             >
               Your{" "}
               <span
                 style={{
-                  background: "linear-gradient(135deg, #a78bfa, #818cf8)",
+                  background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                 }}
@@ -152,18 +152,18 @@ export default function HomePage() {
 
             <p
               className="text-base leading-relaxed mb-8 max-w-lg"
-              style={{ color: "#94a3b8" }}
+              style={{ color: "#6b7280" }}
             >
               Hiring software silently rejects most applicants before a human
               reads their resume. ResuFit makes sure yours ticks every box so
               the hiring manager sees it.
             </p>
 
-            <ul className="space-y-4 mb-10">
+            <ul className="space-y-3.5 mb-10 w-full max-w-lg">
               {VALUE_PROPS.map((vp, i) => (
                 <li key={i} className="flex items-start gap-3">
                   <span className="mt-0.5 shrink-0">{vp.icon}</span>
-                  <span className="text-sm" style={{ color: "#94a3b8" }}>
+                  <span className="text-sm" style={{ color: "#6b7280" }}>
                     {vp.text}
                   </span>
                 </li>
@@ -173,54 +173,54 @@ export default function HomePage() {
             <div
               className="inline-flex items-center gap-3 rounded-xl px-4 py-3 text-sm"
               style={{
-                background: "rgba(124,58,237,0.08)",
-                border: "1px solid rgba(124,58,237,0.2)",
+                background: "rgba(99,102,241,0.05)",
+                border: "1px solid rgba(99,102,241,0.15)",
               }}
             >
               <span
                 className="text-xs font-semibold px-2 py-0.5 rounded-md"
-                style={{ background: "rgba(124,58,237,0.2)", color: "#a78bfa" }}
+                style={{ background: "rgba(99,102,241,0.1)", color: "#6366f1" }}
               >
                 ONLY
               </span>
-              <span style={{ color: "#e2e8f0" }}>
-                <strong className="text-white">$5</strong> one-time &nbsp;·&nbsp;{" "}
-                <strong className="text-white">$15/mo</strong> Pro (30 optimisations)
+              <span style={{ color: "#374151" }}>
+                <strong style={{ color: "#111827" }}>$5</strong> one-time &nbsp;·&nbsp;{" "}
+                <strong style={{ color: "#111827" }}>$15/mo</strong> Pro (30 optimisations)
               </span>
             </div>
           </div>
 
-          {/* ── Right column: form card ── */}
+          {/* ── Right: form card ── */}
           <div className="w-full lg:w-[460px] shrink-0">
             <div
               className="rounded-2xl p-6 space-y-5"
               style={{
-                background: "#1e293b",
-                border: "1px solid #334155",
-                boxShadow: "0 0 0 1px rgba(124,58,237,0.08), 0 24px 64px rgba(0,0,0,0.4)",
+                background: "#ffffff",
+                border: "1px solid #e5e7eb",
+                boxShadow: "0 4px 6px -1px rgba(0,0,0,0.05), 0 20px 48px -8px rgba(99,102,241,0.08)",
               }}
             >
               {/* Step 1 */}
               <div>
                 <p
                   className="text-xs font-semibold uppercase tracking-wider mb-2"
-                  style={{ color: "#94a3b8" }}
+                  style={{ color: "#9ca3af" }}
                 >
                   Step 1 — Upload your resume
                 </p>
                 <DropZone file={file} onFileChange={setFile} />
-                <p className="text-[11px] text-center mt-2" style={{ color: "#475569" }}>
+                <p className="text-[11px] text-center mt-2" style={{ color: "#d1d5db" }}>
                   🔒 Secure and private — never shared with third parties
                 </p>
               </div>
 
-              <div style={{ borderTop: "1px solid #1e293b", marginLeft: "-24px", marginRight: "-24px" }} />
+              <div style={{ borderTop: "1px solid #f3f4f6", marginLeft: "-24px", marginRight: "-24px" }} />
 
               {/* Step 2 */}
               <div>
                 <p
                   className="text-xs font-semibold uppercase tracking-wider mb-2"
-                  style={{ color: "#94a3b8" }}
+                  style={{ color: "#9ca3af" }}
                 >
                   Step 2 — Paste the job description
                 </p>
@@ -230,13 +230,11 @@ export default function HomePage() {
                     onChange={(e) => setJobDescription(e.target.value)}
                     placeholder="Paste the full job description here..."
                     rows={6}
-                    className="w-full rounded-xl p-4 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all"
+                    className="w-full rounded-xl p-4 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all"
                     style={{
-                      color: "#e2e8f0",
-                      background: jobDescription.length > 20
-                        ? "rgba(16,185,129,0.04)"
-                        : "rgba(15,23,42,0.5)",
-                      border: `2px solid ${jobDescription.length > 20 ? "#10b981" : "#334155"}`,
+                      color: "#111827",
+                      background: jobDescription.length > 20 ? "rgba(16,185,129,0.03)" : "#f9fafb",
+                      border: `1.5px solid ${jobDescription.length > 20 ? "#10b981" : "#e5e7eb"}`,
                     }}
                   />
                   {jobDescription.length > 20 && (
@@ -255,9 +253,9 @@ export default function HomePage() {
                 <div
                   className="rounded-lg px-4 py-3 text-sm"
                   style={{
-                    background: "rgba(239,68,68,0.1)",
-                    border: "1px solid rgba(239,68,68,0.3)",
-                    color: "#f87171",
+                    background: "#fef2f2",
+                    border: "1px solid #fecaca",
+                    color: "#dc2626",
                   }}
                 >
                   {error}
@@ -271,15 +269,15 @@ export default function HomePage() {
                 className="w-full py-4 rounded-xl font-semibold text-sm transition-all"
                 style={{
                   background: canSubmit
-                    ? "linear-gradient(135deg, #7c3aed, #6366f1)"
-                    : "#1e293b",
-                  color: canSubmit ? "#fff" : "#475569",
+                    ? "linear-gradient(135deg, #6366f1, #8b5cf6)"
+                    : "#f3f4f6",
+                  color: canSubmit ? "#fff" : "#9ca3af",
                   cursor: canSubmit ? "pointer" : "not-allowed",
-                  border: canSubmit ? "none" : "1px solid #334155",
-                  boxShadow: canSubmit ? "0 4px 24px rgba(124,58,237,0.35)" : "none",
+                  border: "none",
+                  boxShadow: canSubmit ? "0 4px 20px rgba(99,102,241,0.3)" : "none",
                 }}
               >
-                {canSubmit ? "Optimise My Resume →" : "Add resume + job description to continue"}
+                {canSubmit ? "Analyse My Resume →" : "Add resume + job description to continue"}
               </button>
             </div>
           </div>

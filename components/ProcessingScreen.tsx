@@ -3,34 +3,25 @@
 import { useState, useEffect } from "react";
 
 const STEPS = [
-  { text: "Scanning job requirements...", duration: 300 },
-  { text: "Found 14 required skills, 6 preferred qualifications", duration: 350 },
-  { text: "Analyzing your resume...", duration: 300 },
-  { text: "Matched 5 of 14 core skills", duration: 300 },
-  { text: "Checking format compatibility with hiring software...", duration: 250 },
-  { text: "Found 3 format issues — fixing automatically", duration: 350 },
-  { text: "Optimizing bullet points with quantified impact...", duration: 400 },
-  { text: "Rewriting professional summary...", duration: 300 },
-  { text: "Adding missing keywords naturally...", duration: 300 },
-  { text: "Generating optimized resume...", duration: 250 },
+  { text: "Reading your resume...", duration: 300 },
+  { text: "Scanning job requirements", duration: 350 },
+  { text: "Identifying required skills and keywords", duration: 300 },
+  { text: "Checking your current match rate", duration: 300 },
+  { text: "Detecting formatting issues", duration: 250 },
+  { text: "Building your skills gap report", duration: 350 },
+  { text: "Almost ready...", duration: 400 },
 ];
 
 export default function ProcessingScreen() {
   const [stepIndex, setStepIndex] = useState(0);
   const [dots, setDots] = useState("");
 
-  // Advance through steps
   useEffect(() => {
     if (stepIndex >= STEPS.length - 1) return;
-
-    const timer = setTimeout(() => {
-      setStepIndex((i) => i + 1);
-    }, STEPS[stepIndex].duration);
-
+    const timer = setTimeout(() => setStepIndex((i) => i + 1), STEPS[stepIndex].duration);
     return () => clearTimeout(timer);
   }, [stepIndex]);
 
-  // Animated dots
   useEffect(() => {
     const interval = setInterval(() => {
       setDots((d) => (d.length >= 3 ? "" : d + "."));
@@ -39,44 +30,51 @@ export default function ProcessingScreen() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-[#0f172a] flex flex-col items-center justify-center px-6">
-      <div className="w-full max-w-sm text-center">
+    <main
+      className="min-h-screen flex flex-col items-center justify-center px-6"
+      style={{ background: "#ffffff" }}
+    >
+      <div className="w-full max-w-xs text-center">
         {/* Spinner */}
-        <div className="relative w-14 h-14 mx-auto mb-6">
+        <div className="relative w-12 h-12 mx-auto mb-7">
           <div
             className="absolute inset-0 rounded-full"
             style={{
-              border: "3px solid #1e293b",
-              borderTopColor: "#8b5cf6",
+              border: "2.5px solid #f3f4f6",
+              borderTopColor: "#6366f1",
               animation: "spin 0.8s linear infinite",
             }}
           />
           <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
         </div>
 
-        <h2 className="text-lg font-bold text-white mb-1">Optimizing your resume</h2>
-        <p className="text-xs text-[#475569] mb-8">Usually ready in under 10 seconds</p>
+        <h2 className="text-lg font-bold mb-1" style={{ color: "#111827" }}>
+          Analysing your resume
+        </h2>
+        <p className="text-xs mb-8" style={{ color: "#9ca3af" }}>
+          This takes just a few seconds
+        </p>
 
         {/* Step log */}
-        <div className="space-y-1.5 text-left">
+        <div className="space-y-2 text-left">
           {STEPS.slice(0, stepIndex + 1).map((step, i) => (
             <div
               key={i}
-              className="flex items-start gap-2.5"
-              style={{ opacity: i === stepIndex ? 1 : 0.4 }}
+              className="flex items-center gap-2.5 transition-opacity"
+              style={{ opacity: i === stepIndex ? 1 : 0.35 }}
             >
               <span
-                className="mt-0.5 flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center text-[10px]"
+                className="shrink-0 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold"
                 style={{
-                  background: i < stepIndex ? "#10b981" : "#8b5cf6",
+                  background: i < stepIndex ? "#10b981" : "#6366f1",
                   color: "#fff",
                 }}
               >
                 {i < stepIndex ? "✓" : "•"}
               </span>
-              <span className="text-sm text-[#94a3b8]">
+              <span className="text-sm" style={{ color: "#4b5563" }}>
                 {step.text}
-                {i === stepIndex && <span className="text-[#8b5cf6]">{dots}</span>}
+                {i === stepIndex && <span style={{ color: "#6366f1" }}>{dots}</span>}
               </span>
             </div>
           ))}
