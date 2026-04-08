@@ -32,7 +32,7 @@ const VALUE_PROPS = [
         <circle cx="13" cy="12" r="2" fill="#10b981" />
       </svg>
     ),
-    text: "Download your polished resume in seconds, ready to send",
+    text: "Download your polished resume in seconds, ready to apply",
   },
 ];
 
@@ -206,7 +206,7 @@ export default function HomePage() {
               <div>
                 <p
                   className="text-xs font-semibold uppercase tracking-wider mb-2"
-                  style={{ color: "#64748b" }}
+                  style={{ color: "#94a3b8" }}
                 >
                   Step 1 — Upload your resume
                 </p>
@@ -223,7 +223,7 @@ export default function HomePage() {
               <div className="relative">
                 <p
                   className="text-xs font-semibold uppercase tracking-wider mb-2"
-                  style={{ color: "#64748b" }}
+                  style={{ color: "#94a3b8" }}
                 >
                   Step 2 — Paste the job description
                 </p>
