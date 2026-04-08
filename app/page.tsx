@@ -135,7 +135,7 @@ export default function HomePage() {
                 letterSpacing: "-0.02em",
               }}
             >
-              A tailored, ATS-ready resume{" "}
+              The resume that{" "}
               <span
                 style={{
                   background: "linear-gradient(135deg, #a78bfa, #818cf8)",
@@ -143,7 +143,7 @@ export default function HomePage() {
                   WebkitTextFillColor: "transparent",
                 }}
               >
-                for every role.
+                reaches humans.
               </span>
               <br />
               In 10 seconds.
@@ -154,7 +154,7 @@ export default function HomePage() {
               className="text-base leading-relaxed mb-8 max-w-lg"
               style={{ color: "#94a3b8" }}
             >
-              Hiring software silently rejects most applicants before a human
+              Hiring software silently rejects most applicants before anyone
               reads their resume. ResuFit rewrites yours around the exact role
               — so you make it through.
             </p>
@@ -183,7 +183,7 @@ export default function HomePage() {
                 className="text-xs font-semibold px-2 py-0.5 rounded-md"
                 style={{ background: "rgba(124,58,237,0.2)", color: "#a78bfa" }}
               >
-                FROM
+                ONLY
               </span>
               <span style={{ color: "#e2e8f0" }}>
                 <strong className="text-white">$5</strong> one-time &nbsp;·&nbsp;{" "}
