@@ -11,21 +11,38 @@ export default function HomePage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [textareaFocused, setTextareaFocused] = useState(false);
+  const [validationHint, setValidationHint] = useState<string | null>(null);
+
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const dropRef = useRef<HTMLDivElement>(null);
 
   const canSubmit = file !== null && jobDescription.trim().length > 20;
 
   const handleFileChange = useCallback((f: File | null) => {
     setFile(f);
-    if (f && textareaRef.current) {
+    if (f) {
+      setValidationHint(null);
       setTimeout(() => textareaRef.current?.focus(), 150);
     }
   }, []);
 
   const handleSubmit = useCallback(async () => {
-    if (!canSubmit || !file) return;
+    // Always-active CTA — validate inline rather than disabling
+    if (!file) {
+      setValidationHint("resume");
+      dropRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    if (jobDescription.trim().length <= 20) {
+      setValidationHint("job");
+      textareaRef.current?.focus();
+      return;
+    }
+
+    setValidationHint(null);
     setError(null);
     setIsProcessing(true);
+
     try {
       const formData = new FormData();
       formData.append("resume", file);
@@ -52,9 +69,21 @@ export default function HomePage() {
       setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
       setIsProcessing(false);
     }
-  }, [canSubmit, file, jobDescription]);
+  }, [file, jobDescription]);
 
   if (isProcessing) return <ProcessingScreen />;
+
+  // Shared inner-box style — both panels identical
+  const inputBoxStyle: React.CSSProperties = {
+    border: "1.5px solid #ddd6fe",
+    borderRadius: 14,
+    background: "#f5f3ff",
+    minHeight: 200,
+    display: "flex",
+    flexDirection: "column",
+    overflow: "hidden",
+    transition: "border-color 0.2s",
+  };
 
   return (
     <div style={{ minHeight: "100vh", background: "#f8f7ff", display: "flex", flexDirection: "column" }}>
@@ -121,15 +150,14 @@ export default function HomePage() {
 
               {/* ── Left: Resume upload ── */}
               <div style={{ padding: "28px 28px 24px" }}>
-
-                {/* Step label */}
                 <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
                   <span style={{
                     width: 24, height: 24, borderRadius: "50%",
-                    background: file ? "linear-gradient(135deg, #6366f1, #8b5cf6)" : "#eef2ff",
+                    background: file
+                      ? "linear-gradient(135deg, #6366f1, #8b5cf6)"
+                      : "#ede9fe",
                     display: "flex", alignItems: "center", justifyContent: "center",
-                    flexShrink: 0,
-                    fontSize: 11, fontWeight: 800,
+                    flexShrink: 0, fontSize: 11, fontWeight: 800,
                     color: file ? "#fff" : "#6366f1",
                     transition: "background 0.25s",
                   }}>
@@ -140,19 +168,23 @@ export default function HomePage() {
                   </span>
                 </div>
 
-                {/* Drop zone inner box — matches textarea box */}
-                <div style={{
-                  border: `1px solid ${file ? "#c7d2fe" : "#e5e7eb"}`,
-                  borderRadius: 12,
-                  background: file ? "rgba(99,102,241,0.02)" : "#f9fafb",
-                  overflow: "hidden",
-                  transition: "border-color 0.2s, background 0.2s",
-                  minHeight: 180,
-                  display: "flex",
-                  alignItems: "center",
-                }}>
+                <div
+                  ref={dropRef}
+                  style={{
+                    ...inputBoxStyle,
+                    borderColor: validationHint === "resume"
+                      ? "#f87171"
+                      : file ? "#c4b5fd" : "#ddd6fe",
+                  }}
+                >
                   <DropZone file={file} onFileChange={handleFileChange} />
                 </div>
+
+                {validationHint === "resume" && (
+                  <p style={{ fontSize: 12, color: "#ef4444", marginTop: 8 }}>
+                    Please upload your resume first.
+                  </p>
+                )}
               </div>
 
               {/* Hairline divider */}
@@ -160,17 +192,14 @@ export default function HomePage() {
 
               {/* ── Right: Job description ── */}
               <div style={{ padding: "28px 28px 24px" }}>
-
-                {/* Step label */}
                 <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
                   <span style={{
                     width: 24, height: 24, borderRadius: "50%",
                     background: jobDescription.trim().length > 20
                       ? "linear-gradient(135deg, #6366f1, #8b5cf6)"
-                      : "#eef2ff",
+                      : "#ede9fe",
                     display: "flex", alignItems: "center", justifyContent: "center",
-                    flexShrink: 0,
-                    fontSize: 11, fontWeight: 800,
+                    flexShrink: 0, fontSize: 11, fontWeight: 800,
                     color: jobDescription.trim().length > 20 ? "#fff" : "#6366f1",
                     transition: "background 0.25s",
                   }}>
@@ -181,31 +210,28 @@ export default function HomePage() {
                   </span>
                 </div>
 
-                {/* Textarea inner box — identical styling to drop zone box */}
                 <div style={{
-                  border: `1px solid ${
-                    textareaFocused ? "#a5b4fc"
-                    : jobDescription.trim().length > 20 ? "#c7d2fe"
-                    : "#e5e7eb"
-                  }`,
-                  borderRadius: 12,
-                  background: jobDescription.trim().length > 20
-                    ? "rgba(99,102,241,0.02)"
-                    : "#f9fafb",
-                  overflow: "hidden",
-                  transition: "border-color 0.2s, background 0.2s",
-                  minHeight: 180,
+                  ...inputBoxStyle,
+                  borderColor: validationHint === "job"
+                    ? "#f87171"
+                    : textareaFocused
+                    ? "#a5b4fc"
+                    : jobDescription.trim().length > 20 ? "#c4b5fd" : "#ddd6fe",
                 }}>
                   <textarea
                     ref={textareaRef}
                     value={jobDescription}
-                    onChange={(e) => setJobDescription(e.target.value)}
+                    onChange={(e) => {
+                      setJobDescription(e.target.value);
+                      if (validationHint === "job") setValidationHint(null);
+                    }}
                     onFocus={() => setTextareaFocused(true)}
                     onBlur={() => setTextareaFocused(false)}
                     placeholder="Paste the full job description here…"
                     style={{
+                      flex: 1,
+                      minHeight: 200,
                       width: "100%",
-                      minHeight: 180,
                       boxSizing: "border-box",
                       border: "none",
                       outline: "none",
@@ -214,11 +240,17 @@ export default function HomePage() {
                       lineHeight: 1.7,
                       color: "#111827",
                       background: "transparent",
-                      padding: "16px",
+                      padding: "16px 18px",
                       fontFamily: "inherit",
                     }}
                   />
                 </div>
+
+                {validationHint === "job" && (
+                  <p style={{ fontSize: 12, color: "#ef4444", marginTop: 8 }}>
+                    Paste the job description to continue.
+                  </p>
+                )}
               </div>
             </div>
 
@@ -237,9 +269,9 @@ export default function HomePage() {
                 </div>
               )}
 
+              {/* Always-purple hero CTA */}
               <button
                 onClick={handleSubmit}
-                disabled={!canSubmit}
                 style={{
                   width: "100%",
                   padding: "17px 24px",
@@ -248,49 +280,34 @@ export default function HomePage() {
                   fontSize: 15,
                   fontWeight: 700,
                   letterSpacing: "-0.01em",
-                  cursor: canSubmit ? "pointer" : "not-allowed",
+                  cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   gap: 10,
-                  background: canSubmit
-                    ? "linear-gradient(135deg, #6366f1, #8b5cf6)"
-                    : "#f3f4f6",
-                  color: canSubmit ? "#ffffff" : "#9ca3af",
-                  boxShadow: canSubmit ? "0 4px 20px rgba(99,102,241,0.28)" : "none",
-                  transition: "all 0.2s ease",
+                  background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+                  color: "#ffffff",
+                  boxShadow: "0 4px 20px rgba(99,102,241,0.3)",
+                  transition: "box-shadow 0.2s ease, transform 0.15s ease",
                 }}
                 onMouseEnter={(e) => {
-                  if (canSubmit) {
-                    (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 6px 28px rgba(99,102,241,0.42)";
-                    (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-1px)";
-                  }
+                  (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 6px 28px rgba(99,102,241,0.45)";
+                  (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-1px)";
                 }}
                 onMouseLeave={(e) => {
-                  if (canSubmit) {
-                    (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 4px 20px rgba(99,102,241,0.28)";
-                    (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)";
-                  }
+                  (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 4px 20px rgba(99,102,241,0.3)";
+                  (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)";
                 }}
               >
-                {/* Step 3 badge — only show when ready */}
-                {canSubmit && (
-                  <span style={{
-                    width: 22, height: 22, borderRadius: "50%",
-                    background: "rgba(255,255,255,0.25)",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    fontSize: 10, fontWeight: 800, color: "#fff", flexShrink: 0,
-                  }}>
-                    3
-                  </span>
-                )}
-                <span>
-                  {canSubmit
-                    ? "Analyse my resume — free"
-                    : !file
-                    ? "Upload your resume to get started"
-                    : "Paste a job description to continue"}
+                <span style={{
+                  width: 22, height: 22, borderRadius: "50%",
+                  background: "rgba(255,255,255,0.22)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 10, fontWeight: 800, color: "#fff", flexShrink: 0,
+                }}>
+                  3
                 </span>
+                <span>Optimise my resume — free analysis</span>
               </button>
 
               <p style={{ textAlign: "center", fontSize: 12, color: "#9ca3af", margin: "10px 0 0" }}>

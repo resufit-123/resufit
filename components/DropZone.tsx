@@ -28,7 +28,7 @@ export default function DropZone({ file, onFileChange }: DropZoneProps) {
         return;
       }
       if (incoming.size > 5 * 1024 * 1024) {
-        setError("File too large — maximum 5 MB.");
+        setError("File too large — please keep it under 5 MB.");
         return;
       }
       onFileChange(incoming);
@@ -57,7 +57,8 @@ export default function DropZone({ file, onFileChange }: DropZoneProps) {
   const uploaded = file !== null && !dragging;
 
   return (
-    <div style={{ width: "100%" }}>
+    /* Outer wrapper fills the parent container fully */
+    <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
       <div
         role="button"
         tabIndex={0}
@@ -68,35 +69,19 @@ export default function DropZone({ file, onFileChange }: DropZoneProps) {
         onDragLeave={() => setDragging(false)}
         onDrop={onDrop}
         style={{
+          flex: 1,
           width: "100%",
-          minHeight: 220,
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
           cursor: "pointer",
           userSelect: "none",
-          borderRadius: 0,
-          border: dragging
-            ? "1px solid #6366f1"
-            : uploaded
-            ? "1px solid #e5e7eb"
-            : "1px solid transparent",
-          background: dragging
-            ? "rgba(99,102,241,0.02)"
-            : "#ffffff",
-          transition: "border-color 0.15s ease, background 0.15s ease",
           outline: "none",
-        }}
-        onMouseEnter={(e) => {
-          if (!uploaded && !dragging) {
-            (e.currentTarget as HTMLDivElement).style.borderColor = "#e5e7eb";
-          }
-        }}
-        onMouseLeave={(e) => {
-          if (!uploaded && !dragging) {
-            (e.currentTarget as HTMLDivElement).style.borderColor = "transparent";
-          }
+          background: dragging ? "rgba(99,102,241,0.04)" : "transparent",
+          transition: "background 0.15s ease",
+          padding: "24px",
+          boxSizing: "border-box",
         }}
         onFocus={(e) => {
           (e.currentTarget as HTMLDivElement).style.outline = "2px solid #6366f1";
@@ -108,16 +93,15 @@ export default function DropZone({ file, onFileChange }: DropZoneProps) {
       >
         {uploaded ? (
           /* ── Success state ── */
-          <div style={{ textAlign: "center", padding: "0 24px" }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 8 }}>
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                <circle cx="8" cy="8" r="8" fill="#10b981" />
-                <path d="M4.5 8l2.5 2.5 4.5-5" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-              <span style={{ fontSize: 14, fontWeight: 500, color: "#111827" }}>
-                {file!.name}
-              </span>
-            </div>
+          <div style={{ textAlign: "center" }}>
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true"
+              style={{ display: "block", margin: "0 auto 10px" }}>
+              <circle cx="16" cy="16" r="16" fill="#10b981" />
+              <path d="M9 16l5 5 9-10" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            <p style={{ fontSize: 13, fontWeight: 600, color: "#111827", margin: "0 0 6px", wordBreak: "break-all" }}>
+              {file!.name}
+            </p>
             <button
               type="button"
               onClick={(e) => {
@@ -126,12 +110,9 @@ export default function DropZone({ file, onFileChange }: DropZoneProps) {
                 if (inputRef.current) inputRef.current.value = "";
               }}
               style={{
-                background: "none",
-                border: "none",
-                fontSize: 12,
-                color: "#9ca3af",
-                cursor: "pointer",
-                padding: 0,
+                background: "none", border: "none",
+                fontSize: 12, color: "#9ca3af",
+                cursor: "pointer", padding: 0,
                 textDecoration: "underline",
               }}
             >
@@ -139,34 +120,28 @@ export default function DropZone({ file, onFileChange }: DropZoneProps) {
             </button>
           </div>
         ) : (
-          /* ── Upload prompt ── */
-          <div style={{ textAlign: "center", padding: "0 24px" }}>
-            {/* Upload icon — minimal line art */}
-            <svg
-              width="32"
-              height="32"
-              viewBox="0 0 32 32"
-              fill="none"
-              aria-hidden="true"
-              style={{ marginBottom: 12, opacity: 0.35 }}
-            >
-              <path d="M16 22V10M16 10l-5 5M16 10l5 5" stroke="#111827" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M8 26h16" stroke="#111827" strokeWidth="1.75" strokeLinecap="round" />
+          /* ── Upload prompt — no file type or size mentioned here ── */
+          <div style={{ textAlign: "center" }}>
+            <svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true"
+              style={{ display: "block", margin: "0 auto 12px" }}>
+              <path d="M18 26V12M18 12l-6 6M18 12l6 6"
+                stroke="#8b5cf6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M8 30h20"
+                stroke="#8b5cf6" strokeWidth="2" strokeLinecap="round" />
             </svg>
-
-            <p style={{ fontSize: 15, fontWeight: 600, color: "#111827", margin: "0 0 6px" }}>
+            <p style={{ fontSize: 15, fontWeight: 600, color: "#111827", margin: "0 0 4px" }}>
               {dragging ? "Drop it here" : "Drop your resume here"}
             </p>
             <p style={{ fontSize: 13, color: "#9ca3af", margin: 0 }}>
               or <span style={{ color: "#6366f1", fontWeight: 500 }}>click to browse</span>
-              &nbsp;· PDF, DOC, DOCX · Max 5 MB
             </p>
           </div>
         )}
       </div>
 
+      {/* Validation errors only — file type / size shown here if needed */}
       {error && (
-        <p style={{ fontSize: 12, color: "#ef4444", marginTop: 8, textAlign: "center" }}>
+        <p style={{ fontSize: 12, color: "#ef4444", margin: "0 0 8px", textAlign: "center", padding: "0 16px" }}>
           {error}
         </p>
       )}
