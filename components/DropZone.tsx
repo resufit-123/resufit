@@ -23,13 +23,12 @@ export default function DropZone({ file, onFileChange }: DropZoneProps) {
       setError(null);
       const ext = incoming.name.split(".").pop()?.toLowerCase();
       const validExts = ["pdf", "doc", "docx"];
-
       if (!ACCEPTED_TYPES.includes(incoming.type) && !validExts.includes(ext ?? "")) {
         setError("Please upload a PDF, DOC, or DOCX file.");
         return;
       }
       if (incoming.size > 5 * 1024 * 1024) {
-        setError("File is too large. Maximum size is 5MB.");
+        setError("File too large — maximum 5 MB.");
         return;
       }
       onFileChange(incoming);
@@ -58,74 +57,118 @@ export default function DropZone({ file, onFileChange }: DropZoneProps) {
   const uploaded = file !== null && !dragging;
 
   return (
-    <div>
+    <div style={{ width: "100%" }}>
       <div
+        role="button"
+        tabIndex={0}
+        aria-label="Upload your resume"
         onClick={() => inputRef.current?.click()}
+        onKeyDown={(e) => e.key === "Enter" && inputRef.current?.click()}
         onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
         onDragLeave={() => setDragging(false)}
         onDrop={onDrop}
-        className="w-full rounded-xl cursor-pointer transition-all duration-200 select-none"
         style={{
-          padding: "24px 20px",
-          border: `2px ${uploaded ? "solid" : "dashed"} ${
-            dragging ? "#8b5cf6" : uploaded ? "#10b981" : "#334155"
-          }`,
-          background: dragging
-            ? "rgba(139,92,246,0.05)"
+          width: "100%",
+          minHeight: 220,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          cursor: "pointer",
+          userSelect: "none",
+          borderRadius: 0,
+          border: dragging
+            ? "1px solid #6366f1"
             : uploaded
-            ? "rgba(16,185,129,0.04)"
-            : "rgba(15,23,42,0.5)",
+            ? "1px solid #e5e7eb"
+            : "1px solid transparent",
+          background: dragging
+            ? "rgba(99,102,241,0.02)"
+            : "#ffffff",
+          transition: "border-color 0.15s ease, background 0.15s ease",
+          outline: "none",
+        }}
+        onMouseEnter={(e) => {
+          if (!uploaded && !dragging) {
+            (e.currentTarget as HTMLDivElement).style.borderColor = "#e5e7eb";
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (!uploaded && !dragging) {
+            (e.currentTarget as HTMLDivElement).style.borderColor = "transparent";
+          }
+        }}
+        onFocus={(e) => {
+          (e.currentTarget as HTMLDivElement).style.outline = "2px solid #6366f1";
+          (e.currentTarget as HTMLDivElement).style.outlineOffset = "2px";
+        }}
+        onBlur={(e) => {
+          (e.currentTarget as HTMLDivElement).style.outline = "none";
         }}
       >
-        <div className="text-center">
-          {uploaded ? (
-            <>
-              {/* Green success state */}
-              <div
-                className="w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2.5"
-                style={{ background: "#10b981" }}
-              >
-                <span className="text-white text-base font-extrabold">✓</span>
-              </div>
-              <p className="text-sm font-medium text-white">{file!.name}</p>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onFileChange(null);
-                  if (inputRef.current) inputRef.current.value = "";
-                }}
-                className="text-xs text-[#475569] hover:text-[#94a3b8] mt-1 transition-colors"
-              >
-                Remove
-              </button>
-            </>
-          ) : (
-            <>
-              {/* Upload prompt */}
-              <div
-                className="w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2.5"
-                style={{ background: "#1e293b", border: "1px solid #334155" }}
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                  <polyline points="17 8 12 3 7 8" />
-                  <line x1="12" y1="3" x2="12" y2="15" />
-                </svg>
-              </div>
-              <p className="text-sm font-medium text-white">
-                Drop your resume here
-              </p>
-              <p className="text-xs text-[#475569] mt-1">
-                or <span className="text-[#a78bfa]">click to browse</span> · PDF, DOC, DOCX · Max 5MB
-              </p>
-            </>
-          )}
-        </div>
+        {uploaded ? (
+          /* ── Success state ── */
+          <div style={{ textAlign: "center", padding: "0 24px" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 8 }}>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <circle cx="8" cy="8" r="8" fill="#10b981" />
+                <path d="M4.5 8l2.5 2.5 4.5-5" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              <span style={{ fontSize: 14, fontWeight: 500, color: "#111827" }}>
+                {file!.name}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onFileChange(null);
+                if (inputRef.current) inputRef.current.value = "";
+              }}
+              style={{
+                background: "none",
+                border: "none",
+                fontSize: 12,
+                color: "#9ca3af",
+                cursor: "pointer",
+                padding: 0,
+                textDecoration: "underline",
+              }}
+            >
+              Remove
+            </button>
+          </div>
+        ) : (
+          /* ── Upload prompt ── */
+          <div style={{ textAlign: "center", padding: "0 24px" }}>
+            {/* Upload icon — minimal line art */}
+            <svg
+              width="32"
+              height="32"
+              viewBox="0 0 32 32"
+              fill="none"
+              aria-hidden="true"
+              style={{ marginBottom: 12, opacity: 0.35 }}
+            >
+              <path d="M16 22V10M16 10l-5 5M16 10l5 5" stroke="#111827" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M8 26h16" stroke="#111827" strokeWidth="1.75" strokeLinecap="round" />
+            </svg>
+
+            <p style={{ fontSize: 15, fontWeight: 600, color: "#111827", margin: "0 0 6px" }}>
+              {dragging ? "Drop it here" : "Drop your resume here"}
+            </p>
+            <p style={{ fontSize: 13, color: "#9ca3af", margin: 0 }}>
+              or <span style={{ color: "#6366f1", fontWeight: 500 }}>click to browse</span>
+              &nbsp;· PDF, DOC, DOCX · Max 5 MB
+            </p>
+          </div>
+        )}
       </div>
 
       {error && (
-        <p className="text-xs text-red-400 mt-2 text-center">{error}</p>
+        <p style={{ fontSize: 12, color: "#ef4444", marginTop: 8, textAlign: "center" }}>
+          {error}
+        </p>
       )}
 
       <input
@@ -133,7 +176,7 @@ export default function DropZone({ file, onFileChange }: DropZoneProps) {
         type="file"
         accept=".pdf,.doc,.docx"
         onChange={onInputChange}
-        className="hidden"
+        style={{ display: "none" }}
         aria-label="Upload resume"
       />
     </div>
