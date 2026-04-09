@@ -51,91 +51,116 @@ export default function HomePage() {
     <div className="flex-1 flex flex-col" style={{ background: "#ffffff" }}>
 
       {/* ── Nav ── */}
-      <header className="w-full max-w-5xl mx-auto px-6 pt-6 pb-2 flex items-center justify-between">
+      <header className="w-full max-w-2xl mx-auto px-6 pt-6 pb-2 flex items-center justify-between">
         <Logo size="md" />
         <a href="/sign-in" className="text-sm" style={{ color: "#9ca3af" }}>Sign in</a>
       </header>
 
-      {/* ══════════════════════════════════════════════════
-          HERO
-      ══════════════════════════════════════════════════ */}
-      <section className="w-full flex flex-col lg:flex-row items-center gap-10 lg:gap-16 max-w-5xl mx-auto px-6 pt-12 pb-16">
+      {/* ── Single centred column ── */}
+      <main className="flex-1 flex flex-col items-center justify-start px-6 pt-10 pb-20">
+        <div className="w-full max-w-xl">
 
-        {/* Left: copy */}
-        <div className="flex-1 flex flex-col items-center text-center lg:items-start lg:text-left">
-          <h1
-            className="font-bold leading-tight mb-4"
-            style={{ fontSize: "clamp(2rem, 4.5vw, 3.2rem)", color: "#111827", letterSpacing: "-0.03em" }}
-          >
-            A tailored, job-winning resume —{" "}
-            <span style={{ background: "linear-gradient(135deg, #6366f1, #8b5cf6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-              matched to the role you want.
-            </span>
-          </h1>
-
-          <p className="text-base leading-relaxed mb-6 max-w-md" style={{ color: "#6b7280" }}>
-            Paste a job description. ResuFit rewrites your resume to match it perfectly — the right skills, the right language, the right format. Download as a polished PDF <em>or</em> an editable Word document you can keep refining.
-          </p>
-
-          {/* Value props */}
-          <ul className="space-y-2.5 mb-8 w-full max-w-md">
-            {[
-              { icon: "✦", text: "Your experience, matched to exactly what the role requires" },
-              { icon: "✦", text: "Formatting fixed so hiring software reads every word" },
-              { icon: "✦", text: "Download as PDF or editable Word — ready to apply, or keep improving" },
-            ].map((item) => (
-              <li key={item.text} className="flex items-start gap-3">
-                <span className="shrink-0 text-xs mt-0.5 font-bold" style={{ color: "#6366f1" }}>{item.icon}</span>
-                <span className="text-sm" style={{ color: "#4b5563" }}>{item.text}</span>
-              </li>
-            ))}
-          </ul>
-
-          {/* Social proof strip */}
-          <div className="flex flex-wrap gap-4 text-xs" style={{ color: "#9ca3af" }}>
-            <span>🔒 Secure &amp; private</span>
-            <span>·</span>
-            <span>No account needed</span>
-            <span>·</span>
-            <span>Results in seconds</span>
-          </div>
-        </div>
-
-        {/* Right: form — the primary action */}
-        <div className="w-full lg:w-[420px] shrink-0">
-          {/* Price callout above the card */}
-          <div className="flex items-center justify-center gap-2 mb-3">
-            <span
-              className="text-xs font-bold px-3 py-1 rounded-full"
-              style={{ background: "#eef2ff", color: "#4f46e5", border: "1px solid #c7d2fe" }}
+          {/* Headline */}
+          <div className="text-center mb-8">
+            <h1
+              className="font-bold leading-tight mb-3"
+              style={{ fontSize: "clamp(1.65rem, 4vw, 2.4rem)", color: "#111827", letterSpacing: "-0.03em" }}
             >
-              $5 one-time · no account needed
-            </span>
+              A resume tailored to the job —{" "}
+              <span style={{
+                background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+              }}>
+                ready to download.
+              </span>
+            </h1>
+            <p className="text-sm" style={{ color: "#9ca3af" }}>
+              Free to analyse &nbsp;·&nbsp; <strong style={{ color: "#4b5563" }}>$5</strong> to download &nbsp;·&nbsp; No account needed
+            </p>
           </div>
 
+          {/* 3-step progress strip */}
           <div
-            style={{
-              background: "#ffffff",
-              border: "1.5px solid #e5e7eb",
-              borderRadius: "20px",
-              boxShadow: "0 8px 30px rgba(99,102,241,0.1), 0 2px 8px rgba(0,0,0,0.04)",
-            }}
+            className="flex items-center justify-between mb-6 px-2"
+            style={{ gap: 0 }}
           >
+            {/* Step 1 */}
+            <div className="flex flex-col items-center" style={{ flex: 1 }}>
+              <div
+                className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold mb-1.5"
+                style={{
+                  background: file ? "linear-gradient(135deg,#6366f1,#8b5cf6)" : "#eef2ff",
+                  color: file ? "#fff" : "#6366f1",
+                  transition: "all 0.3s",
+                }}
+              >
+                {file ? "✓" : "1"}
+              </div>
+              <span className="text-[10px] font-semibold text-center" style={{ color: file ? "#6366f1" : "#9ca3af" }}>
+                Upload resume
+              </span>
+            </div>
+
+            {/* Connector */}
+            <div style={{ flex: 1, height: 1, background: "#e5e7eb", marginBottom: 20 }} />
+
+            {/* Step 2 */}
+            <div className="flex flex-col items-center" style={{ flex: 1 }}>
+              <div
+                className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold mb-1.5"
+                style={{
+                  background: jobDescription.length > 20 ? "linear-gradient(135deg,#6366f1,#8b5cf6)" : "#eef2ff",
+                  color: jobDescription.length > 20 ? "#fff" : "#6366f1",
+                  transition: "all 0.3s",
+                }}
+              >
+                {jobDescription.length > 20 ? "✓" : "2"}
+              </div>
+              <span className="text-[10px] font-semibold text-center" style={{ color: jobDescription.length > 20 ? "#6366f1" : "#9ca3af" }}>
+                Paste job post
+              </span>
+            </div>
+
+            {/* Connector */}
+            <div style={{ flex: 1, height: 1, background: "#e5e7eb", marginBottom: 20 }} />
+
+            {/* Step 3 */}
+            <div className="flex flex-col items-center" style={{ flex: 1 }}>
+              <div
+                className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold mb-1.5"
+                style={{ background: "#eef2ff", color: "#6366f1" }}
+              >
+                3
+              </div>
+              <span className="text-[10px] font-semibold text-center" style={{ color: "#9ca3af" }}>
+                Download for $5
+              </span>
+            </div>
+          </div>
+
+          {/* Form card */}
+          <div style={{
+            background: "#ffffff",
+            border: "1.5px solid #e5e7eb",
+            borderRadius: 20,
+            boxShadow: "0 8px 30px rgba(99,102,241,0.09), 0 2px 8px rgba(0,0,0,0.04)",
+          }}>
             <div className="p-6 space-y-5">
 
-              {/* Step 1 */}
+              {/* Step 1: Upload */}
               <div>
-                <p className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: "#6366f1" }}>
+                <p className="text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: "#6366f1" }}>
                   Step 1 · Upload your resume
                 </p>
                 <DropZone file={file} onFileChange={setFile} />
               </div>
 
-              <div style={{ borderTop: "1px solid #f3f4f6", marginLeft: "-24px", marginRight: "-24px" }} />
+              <div style={{ borderTop: "1px solid #f3f4f6", margin: "0 -24px" }} />
 
-              {/* Step 2 */}
+              {/* Step 2: Job description */}
               <div>
-                <p className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: "#6366f1" }}>
+                <p className="text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: "#6366f1" }}>
                   Step 2 · Paste the job description
                 </p>
                 <div className="relative">
@@ -173,127 +198,40 @@ export default function HomePage() {
                 <button
                   onClick={handleSubmit}
                   disabled={!canSubmit}
-                  className="w-full py-4 rounded-xl font-bold text-sm transition-all"
+                  className="w-full py-4 rounded-xl font-bold transition-all"
                   style={{
-                    background: canSubmit ? "linear-gradient(135deg, #6366f1, #8b5cf6)" : "#f3f4f6",
+                    background: canSubmit
+                      ? "linear-gradient(135deg, #6366f1, #8b5cf6)"
+                      : "#f3f4f6",
                     color: canSubmit ? "#ffffff" : "#9ca3af",
                     cursor: canSubmit ? "pointer" : "not-allowed",
                     boxShadow: canSubmit ? "0 4px 20px rgba(99,102,241,0.3)" : "none",
-                    fontSize: "0.9rem",
+                    fontSize: "0.95rem",
                     letterSpacing: "-0.01em",
                   }}
                 >
-                  {canSubmit ? "Get my tailored resume →" : "Add your resume + job description to continue"}
+                  {canSubmit ? "Analyse my resume — free →" : "Add your resume + job description to continue"}
                 </button>
-                <p className="text-center text-[11px] mt-2.5" style={{ color: "#9ca3af" }}>
-                  Free to analyse · <strong style={{ color: "#4b5563" }}>$5</strong> to download your tailored resume · No account needed
-                </p>
+
+                <div className="flex items-center justify-center gap-2 mt-3">
+                  <span className="text-[11px]" style={{ color: "#9ca3af" }}>
+                    Instant free analysis · <strong style={{ color: "#4b5563" }}>$5</strong> to download · PDF + editable Word
+                  </span>
+                </div>
               </div>
 
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* ══════════════════════════════════════════════════
-          HOW IT WORKS  — 3 steps, designed to pop
-      ══════════════════════════════════════════════════ */}
-      <section style={{ background: "#f9fafb", borderTop: "1px solid #f3f4f6" }}>
-        <div className="max-w-5xl mx-auto px-6 py-16">
-
-          <div className="text-center mb-12">
-            <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: "#9ca3af" }}>How it works</p>
-            <h2 className="text-2xl font-bold" style={{ color: "#111827", letterSpacing: "-0.02em" }}>
-              Three steps. A better resume.
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-
-            {/* Step 1 */}
-            <div
-              className="rounded-2xl p-6 flex flex-col"
-              style={{ background: "#ffffff", border: "1px solid #e5e7eb", boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}
-            >
-              <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 text-lg font-black"
-                style={{ background: "#eef2ff", color: "#6366f1" }}
-              >
-                1
-              </div>
-              <h3 className="font-bold text-base mb-2" style={{ color: "#111827" }}>Upload your resume</h3>
-              <p className="text-sm leading-relaxed" style={{ color: "#6b7280" }}>
-                PDF or Word document. We extract every word of your experience instantly.
-              </p>
-            </div>
-
-            {/* Arrow (desktop) */}
-            {/* Step 2 */}
-            <div
-              className="rounded-2xl p-6 flex flex-col"
-              style={{ background: "#ffffff", border: "1px solid #e5e7eb", boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}
-            >
-              <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 text-lg font-black"
-                style={{ background: "#eef2ff", color: "#6366f1" }}
-              >
-                2
-              </div>
-              <h3 className="font-bold text-base mb-2" style={{ color: "#111827" }}>Paste the job description</h3>
-              <p className="text-sm leading-relaxed" style={{ color: "#6b7280" }}>
-                Copy it straight from LinkedIn, Indeed, or any job site. We read the requirements and match your experience to them.
-              </p>
-            </div>
-
-            {/* Step 3 */}
-            <div
-              className="rounded-2xl p-6 flex flex-col relative overflow-hidden"
-              style={{
-                background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)",
-                boxShadow: "0 8px 24px rgba(99,102,241,0.3)",
-              }}
-            >
-              {/* Subtle glow */}
-              <div className="absolute inset-0 opacity-20" style={{ background: "radial-gradient(circle at top right, #ffffff, transparent 60%)" }} />
-              <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 text-lg font-black relative z-10"
-                style={{ background: "rgba(255,255,255,0.2)", color: "#ffffff" }}
-              >
-                3
-              </div>
-              <h3 className="font-bold text-base mb-2 text-white relative z-10">Download your tailored resume</h3>
-              <p className="text-sm leading-relaxed relative z-10" style={{ color: "rgba(255,255,255,0.8)" }}>
-                A polished, job-matched resume — download as a <strong className="text-white">PDF</strong> or an <strong className="text-white">editable Word document</strong> you can keep working on.
-              </p>
-              <div className="mt-4 relative z-10">
-                <span
-                  className="inline-flex text-[11px] font-bold px-2.5 py-1 rounded-full"
-                  style={{ background: "rgba(255,255,255,0.2)", color: "#ffffff" }}
-                >
-                  $5 one-time · no account needed
-                </span>
-              </div>
-            </div>
-
-          </div>
-
-          {/* Bottom CTA */}
-          <div className="text-center mt-10">
-            <button
-              onClick={() => document.querySelector("textarea")?.focus()}
-              className="inline-flex items-center gap-2 py-3 px-8 rounded-xl font-bold text-sm text-white transition-all"
-              style={{
-                background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
-                boxShadow: "0 4px 20px rgba(99,102,241,0.3)",
-              }}
-            >
-              Get started for $5 →
-            </button>
-            <p className="text-xs mt-2" style={{ color: "#9ca3af" }}>Free to analyse · Pay only to download</p>
+          {/* Bottom trust strip */}
+          <div className="flex items-center justify-center gap-4 mt-6 flex-wrap">
+            {["🔒 Private & secure", "📄 PDF + editable Word", "⚡ Results in seconds"].map((item) => (
+              <span key={item} className="text-xs" style={{ color: "#9ca3af" }}>{item}</span>
+            ))}
           </div>
 
         </div>
-      </section>
+      </main>
 
     </div>
   );
