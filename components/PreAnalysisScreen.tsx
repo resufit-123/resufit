@@ -296,23 +296,43 @@ export default function PreAnalysisScreen({
       )}
 
       {/* ── Header ── */}
-      <div style={{ textAlign: "center", padding: "40px 24px 32px" }}>
-        {firstName ? (
-          <>
-            <p style={{ fontSize: 14, color: "#6b7280", marginBottom: 6 }}>Analysis ready for</p>
-            <h1 style={{ fontSize: 28, fontWeight: 800, color: "#111827", letterSpacing: "-0.03em", marginBottom: 6 }}>
-              {firstName}, here&rsquo;s what we found.
-            </h1>
-          </>
-        ) : (
-          <h1 style={{ fontSize: 28, fontWeight: 800, color: "#111827", letterSpacing: "-0.03em", marginBottom: 6 }}>
-            Here&rsquo;s what we found.
-          </h1>
-        )}
+      <div style={{ textAlign: "center", padding: "44px 24px 32px" }}>
+        {/* Scan complete pill */}
+        <div style={{
+          display: "inline-flex", alignItems: "center", gap: 6,
+          background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.18)",
+          borderRadius: 20, padding: "5px 13px", marginBottom: 20,
+        }}>
+          <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#6366f1", display: "inline-block", flexShrink: 0 }} />
+          <span style={{ fontSize: 12, fontWeight: 600, color: "#6366f1", letterSpacing: "0.01em" }}>
+            Resume scan complete
+          </span>
+        </div>
+
+        {/* Main hook */}
+        <h1 style={{
+          fontSize: "clamp(1.6rem, 3.5vw, 2.1rem)",
+          fontWeight: 900, color: "#111827",
+          letterSpacing: "-0.04em", lineHeight: 1.15,
+          margin: "0 0 14px",
+        }}>
+          {firstName
+            ? <>{firstName}, here&rsquo;s why you&rsquo;re not hearing back.</>
+            : <>Here&rsquo;s why you&rsquo;re not hearing back.</>
+          }
+        </h1>
+
+        {/* Emotional sub-copy */}
+        <p style={{ fontSize: 15, color: "#4b5563", lineHeight: 1.6, maxWidth: 480, margin: "0 auto 10px" }}>
+          Most resumes are eliminated before a recruiter reads a single word.
+          Hiring software scores every applicant automatically.
+          We&rsquo;ve just run yours through the same process.
+        </p>
+
         {analysis.jobTitleHint && (
-          <p style={{ fontSize: 14, color: "#6b7280" }}>
+          <p style={{ fontSize: 13, color: "#9ca3af" }}>
             Analysed against{" "}
-            <strong style={{ color: "#4b5563" }}>{analysis.jobTitleHint}</strong>
+            <strong style={{ color: "#6b7280" }}>{analysis.jobTitleHint}</strong>
           </p>
         )}
       </div>
@@ -383,22 +403,35 @@ export default function PreAnalysisScreen({
           </p>
           {formattingIssues.map((issue, i) => (
             <div key={i} style={{
-              display: "flex", alignItems: "flex-start", gap: 10, padding: "9px 0",
+              padding: "10px 0",
               borderBottom: i < formattingIssues.length - 1 ? "1px solid #f3f4f6" : "none",
             }}>
-              <span style={{
-                fontSize: 9, fontWeight: 700, padding: "2px 6px", borderRadius: 4, marginTop: 2, flexShrink: 0,
-                background: "rgba(239,68,68,0.08)", color: "#ef4444",
-              }}>
-                FLAGGED
-              </span>
-              <span style={{ fontSize: 13, color: "#4b5563", flex: 1, lineHeight: 1.5 }}>{issue}</span>
-              <span style={{ color: "#d1d5db", fontSize: 12, fontWeight: 600, flexShrink: 0 }}>🔒</span>
+              {/* Problem row */}
+              <div style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 6 }}>
+                <span style={{
+                  fontSize: 9, fontWeight: 700, padding: "2px 6px", borderRadius: 4, marginTop: 2, flexShrink: 0,
+                  background: "rgba(239,68,68,0.08)", color: "#ef4444",
+                }}>
+                  FLAGGED
+                </span>
+                <span style={{ fontSize: 13, color: "#4b5563", flex: 1, lineHeight: 1.5 }}>{issue}</span>
+              </div>
+              {/* Resolution row */}
+              <div style={{ display: "flex", alignItems: "center", gap: 8, paddingLeft: 44 }}>
+                <span style={{
+                  width: 16, height: 16, borderRadius: "50%", flexShrink: 0,
+                  background: "rgba(16,185,129,0.1)", border: "1.5px solid rgba(16,185,129,0.3)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 9, color: "#059669", fontWeight: 900,
+                }}>
+                  ✓
+                </span>
+                <span style={{ fontSize: 11, color: "#059669", fontWeight: 600 }}>
+                  Fixed in your optimised resume
+                </span>
+              </div>
             </div>
           ))}
-          <p style={{ fontSize: 11, color: "#9ca3af", marginTop: 12, fontStyle: "italic" }}>
-            All issues resolved in your optimised resume.
-          </p>
         </div>
 
         {/* ── Resume Preview ── */}
@@ -585,7 +618,7 @@ export default function PreAnalysisScreen({
             {/* Divider */}
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
               <div style={{ flex: 1, height: 1, background: "#f3f4f6" }} />
-              <span style={{ fontSize: 11, color: "#9ca3af", fontWeight: 500 }}>or go unlimited</span>
+              <span style={{ fontSize: 11, color: "#9ca3af", fontWeight: 500 }}>or get more with Pro</span>
               <div style={{ flex: 1, height: 1, background: "#f3f4f6" }} />
             </div>
 
@@ -634,11 +667,9 @@ export default function PreAnalysisScreen({
               <div style={{ padding: "14px 18px", background: "#ffffff" }}>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "7px 16px", marginBottom: 14 }}>
                   {[
-                    "Unlimited optimisations",
+                    "30 optimisations/month",
                     "Cover letter writer",
-                    "LinkedIn profile optimiser",
                     "Priority processing",
-                    "Job tracker dashboard",
                     "Cancel anytime",
                   ].map((benefit) => (
                     <span key={benefit} style={{ fontSize: 12, color: "#374151", display: "flex", alignItems: "center", gap: 5 }}>
@@ -658,12 +689,6 @@ export default function PreAnalysisScreen({
               </div>
             </div>
 
-            {/* Trust badges */}
-            <div style={{ display: "flex", justifyContent: "center", gap: 16, fontSize: 11, color: "#9ca3af", flexWrap: "wrap" }}>
-              <span>🔒 Secure payment</span>
-              <span>📄 PDF + editable Word</span>
-              <span>⚡ Instant download</span>
-            </div>
 
           </div>
         </div>

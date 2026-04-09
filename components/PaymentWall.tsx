@@ -130,11 +130,9 @@ export default function PaymentWall({
           <div style={{ padding: "12px 18px" }}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "5px 10px", marginBottom: 12 }}>
               {[
-                "Unlimited optimisations",
+                "30 optimisations/month",
                 "Cover letter writer",
-                "LinkedIn optimiser",
                 "Priority processing",
-                "Job tracker dashboard",
                 "Cancel anytime",
               ].map((b) => (
                 <span key={b} style={{ fontSize: 11, color: "#374151", display: "flex", alignItems: "center", gap: 4 }}>
