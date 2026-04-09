@@ -10,6 +10,7 @@ export default function HomePage() {
   const [jobDescription, setJobDescription] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [textareaFocused, setTextareaFocused] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const canSubmit = file !== null && jobDescription.trim().length > 20;
@@ -55,12 +56,6 @@ export default function HomePage() {
 
   if (isProcessing) return <ProcessingScreen />;
 
-  const ctaBtnText = canSubmit
-    ? "Analyse my resume — free →"
-    : !file
-    ? "Upload your resume to get started"
-    : "Paste the job description to continue";
-
   return (
     <div style={{ minHeight: "100vh", background: "#f8f7ff", display: "flex", flexDirection: "column" }}>
 
@@ -93,7 +88,7 @@ export default function HomePage() {
               color: "#111827",
               letterSpacing: "-0.04em",
               lineHeight: 1.15,
-              margin: "0 0 16px",
+              margin: "0 0 14px",
             }}>
               Get the resume{" "}
               <span style={{
@@ -104,19 +99,12 @@ export default function HomePage() {
                 that gets you hired.
               </span>
             </h1>
-
-            {/* Selling points — two lines, what job seekers really care about */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "center" }}>
-              <p style={{ fontSize: 15, color: "#4b5563", margin: 0, fontWeight: 400, lineHeight: 1.5 }}>
-                Speaks the language of the job, gets you in the door.
-              </p>
-              <p style={{ fontSize: 15, color: "#6b7280", margin: 0, fontWeight: 400, lineHeight: 1.5 }}>
-                Your real experience, matched to what they&rsquo;re actually hiring for.
-              </p>
-            </div>
+            <p style={{ fontSize: 15, color: "#4b5563", margin: 0, lineHeight: 1.5 }}>
+              Your real experience, matched to what they&rsquo;re actually hiring for.
+            </p>
           </div>
 
-          {/* ── Form card ── */}
+          {/* ── Card ── */}
           <div style={{
             background: "#ffffff",
             borderRadius: 20,
@@ -125,69 +113,119 @@ export default function HomePage() {
             marginBottom: 16,
           }}>
 
-            {/* Two-column inputs */}
+            {/* ── Two columns ── */}
             <div className="rf-grid" style={{
               display: "grid",
               gridTemplateColumns: "1fr 1px 1fr",
             }}>
 
               {/* ── Left: Resume upload ── */}
-              <div style={{ padding: "32px 36px" }}>
-                <p style={{
-                  fontSize: 10, fontWeight: 700, letterSpacing: "0.1em",
-                  textTransform: "uppercase", color: "#a5b4fc",
-                  margin: "0 0 20px",
+              <div style={{ padding: "28px 28px 24px" }}>
+
+                {/* Step label */}
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+                  <span style={{
+                    width: 24, height: 24, borderRadius: "50%",
+                    background: file ? "linear-gradient(135deg, #6366f1, #8b5cf6)" : "#eef2ff",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    flexShrink: 0,
+                    fontSize: 11, fontWeight: 800,
+                    color: file ? "#fff" : "#6366f1",
+                    transition: "background 0.25s",
+                  }}>
+                    {file ? "✓" : "1"}
+                  </span>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "#111827" }}>
+                    Drop your resume
+                  </span>
+                </div>
+
+                {/* Drop zone inner box — matches textarea box */}
+                <div style={{
+                  border: `1px solid ${file ? "#c7d2fe" : "#e5e7eb"}`,
+                  borderRadius: 12,
+                  background: file ? "rgba(99,102,241,0.02)" : "#f9fafb",
+                  overflow: "hidden",
+                  transition: "border-color 0.2s, background 0.2s",
+                  minHeight: 180,
+                  display: "flex",
+                  alignItems: "center",
                 }}>
-                  Your resume
-                </p>
-                <DropZone file={file} onFileChange={handleFileChange} />
+                  <DropZone file={file} onFileChange={handleFileChange} />
+                </div>
               </div>
 
               {/* Hairline divider */}
-              <div style={{ background: "#f3f4f6", alignSelf: "stretch" }} />
+              <div style={{ background: "#f3f4f6" }} />
 
               {/* ── Right: Job description ── */}
-              <div style={{ padding: "32px 36px", display: "flex", flexDirection: "column" }}>
-                <p style={{
-                  fontSize: 10, fontWeight: 700, letterSpacing: "0.1em",
-                  textTransform: "uppercase", color: "#a5b4fc",
-                  margin: "0 0 20px",
+              <div style={{ padding: "28px 28px 24px" }}>
+
+                {/* Step label */}
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+                  <span style={{
+                    width: 24, height: 24, borderRadius: "50%",
+                    background: jobDescription.trim().length > 20
+                      ? "linear-gradient(135deg, #6366f1, #8b5cf6)"
+                      : "#eef2ff",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    flexShrink: 0,
+                    fontSize: 11, fontWeight: 800,
+                    color: jobDescription.trim().length > 20 ? "#fff" : "#6366f1",
+                    transition: "background 0.25s",
+                  }}>
+                    {jobDescription.trim().length > 20 ? "✓" : "2"}
+                  </span>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "#111827" }}>
+                    Paste the job description
+                  </span>
+                </div>
+
+                {/* Textarea inner box — identical styling to drop zone box */}
+                <div style={{
+                  border: `1px solid ${
+                    textareaFocused ? "#a5b4fc"
+                    : jobDescription.trim().length > 20 ? "#c7d2fe"
+                    : "#e5e7eb"
+                  }`,
+                  borderRadius: 12,
+                  background: jobDescription.trim().length > 20
+                    ? "rgba(99,102,241,0.02)"
+                    : "#f9fafb",
+                  overflow: "hidden",
+                  transition: "border-color 0.2s, background 0.2s",
+                  minHeight: 180,
                 }}>
-                  Job description
-                </p>
-                <textarea
-                  ref={textareaRef}
-                  value={jobDescription}
-                  onChange={(e) => setJobDescription(e.target.value)}
-                  placeholder="Paste the full job description here…"
-                  style={{
-                    flex: 1,
-                    minHeight: 180,
-                    width: "100%",
-                    boxSizing: "border-box",
-                    border: "none",
-                    outline: "none",
-                    resize: "none",
-                    fontSize: 14,
-                    lineHeight: 1.7,
-                    color: "#111827",
-                    background: "transparent",
-                    padding: 0,
-                    fontFamily: "inherit",
-                  }}
-                />
-                {jobDescription.trim().length > 0 && jobDescription.trim().length <= 20 && (
-                  <p style={{ fontSize: 11, color: "#a5b4fc", marginTop: 8 }}>
-                    A little more and we&rsquo;re good to go
-                  </p>
-                )}
+                  <textarea
+                    ref={textareaRef}
+                    value={jobDescription}
+                    onChange={(e) => setJobDescription(e.target.value)}
+                    onFocus={() => setTextareaFocused(true)}
+                    onBlur={() => setTextareaFocused(false)}
+                    placeholder="Paste the full job description here…"
+                    style={{
+                      width: "100%",
+                      minHeight: 180,
+                      boxSizing: "border-box",
+                      border: "none",
+                      outline: "none",
+                      resize: "none",
+                      fontSize: 14,
+                      lineHeight: 1.7,
+                      color: "#111827",
+                      background: "transparent",
+                      padding: "16px",
+                      fontFamily: "inherit",
+                    }}
+                  />
+                </div>
               </div>
             </div>
 
-            {/* Divider above CTA */}
+            {/* ── Divider ── */}
             <div style={{ height: 1, background: "#f3f4f6" }} />
 
-            {/* ── CTA section ── */}
+            {/* ── CTA row ── */}
             <div style={{ padding: "20px 28px" }}>
               {error && (
                 <div style={{
@@ -211,6 +249,10 @@ export default function HomePage() {
                   fontWeight: 700,
                   letterSpacing: "-0.01em",
                   cursor: canSubmit ? "pointer" : "not-allowed",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 10,
                   background: canSubmit
                     ? "linear-gradient(135deg, #6366f1, #8b5cf6)"
                     : "#f3f4f6",
@@ -231,14 +273,29 @@ export default function HomePage() {
                   }
                 }}
               >
-                {ctaBtnText}
+                {/* Step 3 badge — only show when ready */}
+                {canSubmit && (
+                  <span style={{
+                    width: 22, height: 22, borderRadius: "50%",
+                    background: "rgba(255,255,255,0.25)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontSize: 10, fontWeight: 800, color: "#fff", flexShrink: 0,
+                  }}>
+                    3
+                  </span>
+                )}
+                <span>
+                  {canSubmit
+                    ? "Analyse my resume — free"
+                    : !file
+                    ? "Upload your resume to get started"
+                    : "Paste a job description to continue"}
+                </span>
               </button>
 
               <p style={{ textAlign: "center", fontSize: 12, color: "#9ca3af", margin: "10px 0 0" }}>
-                {canSubmit
-                  ? <>Instant analysis · <strong style={{ color: "#6b7280" }}>$5</strong> to download · PDF + editable Word</>
-                  : <>Free to analyse · <strong style={{ color: "#6b7280" }}>$5</strong> to download · No account needed</>
-                }
+                Free to analyse &nbsp;·&nbsp;{" "}
+                <strong style={{ color: "#6b7280" }}>$5</strong> to download &nbsp;·&nbsp; PDF + editable Word
               </p>
             </div>
 
@@ -246,7 +303,7 @@ export default function HomePage() {
 
           {/* ── Trust strip ── */}
           <div style={{ display: "flex", justifyContent: "center", gap: 24, flexWrap: "wrap" }}>
-            {["🔒 Private & secure", "📄 PDF + editable Word", "⚡ Results in seconds"].map((t) => (
+            {["🔒 Private & secure", "⚡ Results in seconds", "No account needed"].map((t) => (
               <span key={t} style={{ fontSize: 11, color: "#9ca3af" }}>{t}</span>
             ))}
           </div>
@@ -260,7 +317,7 @@ export default function HomePage() {
             grid-template-columns: 1fr !important;
           }
           .rf-grid > div:nth-child(2) {
-            display: none;
+            display: none !important;
           }
         }
       `}</style>
