@@ -33,7 +33,7 @@ export default function PaymentWall({
             Your optimised resume is ready
           </h2>
           <p className="text-sm" style={{ color: "#6b7280" }}>
-            Choose a plan to unlock it and download your PDF
+            You&rsquo;ll get a professionally analyzed, job-matched, resume that&rsquo;s ready-to-send.
           </p>
         </div>
 
@@ -85,33 +85,72 @@ export default function PaymentWall({
           </button>
         </div>
 
-        {/* Pro */}
+        {/* Pro — genuine option with proper visual weight */}
         <div
-          className="rounded-2xl p-5 mb-4 cursor-pointer"
-          style={{ background: "#ffffff", border: "1px solid #e5e7eb" }}
+          className="rounded-2xl mb-4 cursor-pointer overflow-hidden"
+          style={{
+            background: "#ffffff",
+            border: "2px solid #c7d2fe",
+            boxShadow: "0 2px 12px rgba(99,102,241,0.08)",
+            transition: "border-color 0.15s, box-shadow 0.15s",
+          }}
           onClick={() => onPurchase("pro")}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLDivElement).style.borderColor = "#818cf8";
+            (e.currentTarget as HTMLDivElement).style.boxShadow = "0 4px 20px rgba(99,102,241,0.18)";
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLDivElement).style.borderColor = "#c7d2fe";
+            (e.currentTarget as HTMLDivElement).style.boxShadow = "0 2px 12px rgba(99,102,241,0.08)";
+          }}
         >
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-sm font-medium" style={{ color: "#374151" }}>ResuFit Pro</span>
-            <span
-              className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
-              style={{ background: "#f5f3ff", color: "#7c3aed" }}
-            >
-              Best value
-            </span>
+          {/* Pro header */}
+          <div style={{
+            background: "linear-gradient(135deg, #eef2ff, #f5f3ff)",
+            padding: "11px 18px",
+            display: "flex", justifyContent: "space-between", alignItems: "center",
+            borderBottom: "1px solid #e0e7ff",
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ fontSize: 13, fontWeight: 800, color: "#3730a3" }}>ResuFit Pro</span>
+              <span style={{
+                fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 20,
+                background: "linear-gradient(135deg, #6366f1, #8b5cf6)", color: "#fff",
+              }}>
+                Best value
+              </span>
+            </div>
+            <div>
+              <span style={{ fontSize: 18, fontWeight: 900, color: "#111827" }}>$15</span>
+              <span style={{ fontSize: 11, color: "#6b7280", fontWeight: 500 }}>/month</span>
+            </div>
           </div>
-          <p className="text-xl font-bold mb-1" style={{ color: "#374151" }}>
-            $15<span className="text-xs font-normal" style={{ color: "#9ca3af" }}>/month</span>
-          </p>
-          <p className="text-xs mb-3" style={{ color: "#9ca3af" }}>
-            30 optimisations/month · Dashboard · Cancel anytime
-          </p>
-          <button
-            className="w-full py-2 rounded-xl text-xs font-medium"
-            style={{ background: "#f9fafb", border: "1px solid #e5e7eb", color: "#6b7280" }}
-          >
-            Create account &amp; get Pro →
-          </button>
+
+          {/* Pro benefits */}
+          <div style={{ padding: "12px 18px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "5px 10px", marginBottom: 12 }}>
+              {[
+                "Unlimited optimisations",
+                "Cover letter writer",
+                "LinkedIn optimiser",
+                "Priority processing",
+                "Job tracker dashboard",
+                "Cancel anytime",
+              ].map((b) => (
+                <span key={b} style={{ fontSize: 11, color: "#374151", display: "flex", alignItems: "center", gap: 4 }}>
+                  <span style={{ color: "#6366f1", fontWeight: 800, fontSize: 11 }}>✓</span> {b}
+                </span>
+              ))}
+            </div>
+            <div style={{
+              width: "100%", padding: "9px 0", borderRadius: 9, textAlign: "center",
+              background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+              color: "#fff", fontSize: 12, fontWeight: 700,
+              boxShadow: "0 2px 10px rgba(99,102,241,0.25)",
+            }}>
+              Get Pro — $15/month →
+            </div>
+          </div>
         </div>
 
         {/* Marketing */}

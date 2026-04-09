@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import DropZone from "@/components/DropZone";
 import ProcessingScreen from "@/components/ProcessingScreen";
 import Logo from "@/components/Logo";
@@ -12,6 +12,20 @@ export default function HomePage() {
   const [error, setError] = useState<string | null>(null);
   const [textareaFocused, setTextareaFocused] = useState(false);
   const [validationHint, setValidationHint] = useState<string | null>(null);
+  const [currencySymbol, setCurrencySymbol] = useState("$");
+
+  useEffect(() => {
+    const lang = navigator.language || "";
+    if (lang === "en-GB" || lang.startsWith("en-GB")) {
+      setCurrencySymbol("£");
+    } else if (
+      /^(de|fr|es|it|nl|pt|pl|sv|da|fi|nb|el|cs|sk|hu|ro|bg|hr|sl|et|lv|lt|mt|ga)\b/.test(lang)
+    ) {
+      setCurrencySymbol("€");
+    } else {
+      setCurrencySymbol("$");
+    }
+  }, []);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const dropRef = useRef<HTMLDivElement>(null);
@@ -119,17 +133,17 @@ export default function HomePage() {
               lineHeight: 1.15,
               margin: "0 0 14px",
             }}>
-              Get the resume that gets you{" "}
+              Stop applying.{" "}
               <span style={{
                 background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
               }}>
-                hired.
+                Start interviewing.
               </span>
             </h1>
             <p style={{ fontSize: 15, color: "#4b5563", margin: 0, lineHeight: 1.5 }}>
-              Your real experience, matched to what they&rsquo;re actually hiring for.
+              Get the resume your career deserves.
             </p>
           </div>
 
@@ -299,19 +313,11 @@ export default function HomePage() {
                   (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)";
                 }}
               >
-                <span style={{
-                  width: 22, height: 22, borderRadius: "50%",
-                  background: "rgba(255,255,255,0.22)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: 10, fontWeight: 800, color: "#fff", flexShrink: 0,
-                }}>
-                  3
-                </span>
-                <span>Optimise my resume now — $5</span>
+                <span>Optimize my resume now for {currencySymbol}5</span>
               </button>
 
               <p style={{ textAlign: "center", fontSize: 12, color: "#6b7280", margin: "10px 0 0" }}>
-                Polished resume, job-matched analysis, editable Word + PDF — ready to send.
+                You&rsquo;ll get a professionally analyzed, job-matched, resume that&rsquo;s ready-to-send.
               </p>
             </div>
 

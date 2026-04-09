@@ -37,7 +37,18 @@ function firstThird(resumeText: string): string {
   return lines.slice(0, cutoff).join("\n");
 }
 
-// ── Animated score ring (prototype style) ─────────────────
+// Skills that look meaningless (noise from poor parsing)
+function isRecognizableSkill(name: string): boolean {
+  if (name.length < 2) return false;
+  // Reject single letters or all-digit strings
+  if (/^[a-z0-9]{1,2}$/.test(name)) return false;
+  // Reject strings that are entirely numbers
+  if (/^\d+$/.test(name)) return false;
+  // Accept anything >= 3 chars that has at least one letter
+  return /[a-zA-Z]/.test(name);
+}
+
+// ── Animated score ring ────────────────────────────────────
 
 function ScoreRing({
   score,
@@ -66,66 +77,177 @@ function ScoreRing({
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
       <div style={{ position: "relative", width: size, height: size }}>
         <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
-          {/* Track */}
-          <circle
-            cx={size / 2} cy={size / 2} r={radius}
-            stroke="#f3f4f6" strokeWidth={strokeWidth} fill="none"
-          />
-          {/* Animated fill */}
-          <circle
-            cx={size / 2} cy={size / 2} r={radius}
-            stroke={color}
-            strokeWidth={strokeWidth}
-            fill="none"
-            strokeDasharray={circumference}
-            strokeDashoffset={offset}
+          <circle cx={size / 2} cy={size / 2} r={radius}
+            stroke="#f3f4f6" strokeWidth={strokeWidth} fill="none" />
+          <circle cx={size / 2} cy={size / 2} r={radius}
+            stroke={color} strokeWidth={strokeWidth} fill="none"
+            strokeDasharray={circumference} strokeDashoffset={offset}
             strokeLinecap="round"
-            style={{ transition: "stroke-dashoffset 1.5s ease-out, stroke 0.3s ease" }}
-          />
+            style={{ transition: "stroke-dashoffset 1.5s ease-out" }} />
         </svg>
-        {/* Score label */}
         <div style={{
           position: "absolute", inset: 0,
           display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
         }}>
-          <span style={{
-            fontSize: 38, fontWeight: 900, color, lineHeight: 1,
-            fontVariantNumeric: "tabular-nums",
-          }}>
+          <span style={{ fontSize: 38, fontWeight: 900, color, lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>
             {progress}
           </span>
           <span style={{ fontSize: 14, fontWeight: 700, color, opacity: 0.7 }}>%</span>
         </div>
       </div>
-      <span style={{
-        fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em",
-        color: "#6b7280",
-      }}>
+      <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#6b7280" }}>
         {label}
       </span>
     </div>
   );
 }
 
-// ── Apple Pay SVG ─────────────────────────────────────────
+// ── Apple Pay button — official brand style ───────────────
 
-function ApplePayLogo() {
+function ApplePayButton({ onClick }: { onClick: () => void }) {
   return (
-    <svg width="44" height="18" viewBox="0 0 44 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <path d="M8.23 2.57c-.46.55-1.2.98-1.94.92-.09-.74.27-1.53.69-2.02C7.44.9 8.25.5 8.9.46c.08.77-.22 1.55-.67 2.11zm.66 1.05c-1.07-.06-1.99.61-2.5.61-.52 0-1.3-.58-2.15-.56C3.1 3.69 2 4.34 1.4 5.35c-1.22 2.1-.32 5.2.87 6.91.58.85 1.27 1.78 2.18 1.75.87-.03 1.2-.57 2.25-.57 1.05 0 1.35.57 2.27.55.94-.02 1.53-.85 2.11-1.7.66-.97.93-1.92.95-1.97-.02-.01-1.82-.7-1.84-2.79-.02-1.74 1.42-2.58 1.49-2.63-.82-1.2-2.08-1.33-2.49-1.37zM16.2 1.28h-3.3v12.4h1.87V9.6h2.57c2.35 0 4-1.62 4-4.17 0-2.55-1.61-4.15-4.14-4.15zm.42 6.65h-1.85V2.97h1.85c1.45 0 2.28.78 2.28 1.99 0 1.2-.83 1.97-2.28 1.97zm8.33-2.36c-1.64 0-2.85.82-2.9 1.94h1.73c.14-.54.62-.89 1.2-.89.78 0 1.22.36 1.22 1.02v.45l-1.6.1c-1.49.09-2.3.7-2.3 1.76 0 1.07.83 1.78 2.04 1.78.81 0 1.56-.41 1.9-1.06h.03v1h1.73V7.74c0-1.39-.98-2.17-2.65-2.17h.6zm1.24 3.67c0 .76-.67 1.3-1.57 1.3-.69 0-1.13-.34-1.13-.85 0-.53.42-.84 1.22-.89l1.48-.09v.53zm4.09-7.92h-1.86v1.4h-1.02v1.44h1.02v3.58c0 1.55.67 2.19 2.42 2.19.31 0 .62-.04.92-.1v-1.41a2.7 2.7 0 01-.53.05c-.67 0-.95-.27-.95-.96V4.16h1.51V2.72h-1.51V1.32zm3.68 9.52c-.53 0-.87-.35-.87-.88 0-.54.34-.88.87-.88h.89v.9c0 .5-.4.86-.89.86zm.55 2.94c1.41 0 2.58-.92 2.58-2.2v-7.4h-1.77v.92h-.03c-.37-.6-1.04-.98-1.79-.98-1.58 0-2.7 1.26-2.7 3.05 0 1.76 1.1 2.98 2.64 2.98.76 0 1.42-.37 1.78-.97h.03v.87c0 .78-.57 1.3-1.42 1.3-.65 0-1.22-.26-1.37-.67h-1.74c.22 1.24 1.45 2.1 2.79 2.1z" fill="white"/>
-    </svg>
+    <button
+      onClick={onClick}
+      aria-label="Pay with Apple Pay"
+      style={{
+        flex: 1, height: 48, borderRadius: 10, border: "none",
+        background: "#000", cursor: "pointer",
+        display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+        transition: "opacity 0.15s",
+      }}
+      onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.opacity = "0.85"; }}
+      onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.opacity = "1"; }}
+    >
+      {/* Apple logo — correct two-path silhouette */}
+      <svg width="16" height="20" viewBox="0 0 496 512" fill="white" aria-hidden="true">
+        <path d="M248.4 84.3c1.6 0 9.6 1.7 19.9 9.3 10.7 7.8 15.7 19 15.7 33.7 0 13.8-4.5 24.6-13.4 32.3-8.4 7.4-17.7 11.1-27.9 11.1-3.8 0-7.4-.4-10.8-1.3-3.1-.8-6.6-2.3-10.4-4.4l4.3-9.3c4.3 2.6 9.2 3.9 14.7 3.9 7.3 0 13.7-2.4 19.1-7.2 5.5-4.9 8.2-11.4 8.2-19.5 0-8.5-2.7-15.2-8.1-20.1-5.3-4.9-11.7-7.3-19.2-7.3-4.5 0-8.7 1-12.8 3l-4.3-9.3c5.4-2.2 11.2-3.2 17.5-3.2zm-93.7 79.6c-8.5 0-15.1 3-19.8 8.9-4.7 5.9-7.1 13.5-7.1 22.7 0 9.5 2.3 17.1 7 22.9 4.6 5.7 11.3 8.5 20 8.5 5.9 0 11.5-1.5 16.8-4.6l4 9.8c-6.2 3.8-13.4 5.7-21.6 5.7-12.9 0-23-4.1-30.3-12.4-7.3-8.3-10.9-19.3-10.9-33.1 0-13.3 3.8-24.1 11.4-32.3 7.6-8.2 17.9-12.4 30.9-12.4 7.1 0 13.7 1.6 19.8 4.7l-3.9 9.7c-5.2-2.7-10.6-4.1-16.3-4.1zm211.4 158.7c-2 4.9-4.1 9.6-6.4 14.1-3.4 6.5-7.3 11-11.7 13.5-4.3 2.4-9.5 3.6-15.4 3.6-4.9 0-9.5-1.1-13.8-3.3-4.3-2.2-7.9-3.3-10.7-3.3-2.8 0-6.5 1.1-11 3.3-4.5 2.2-9 3.3-13.4 3.3-5.6 0-10.6-1.2-14.9-3.6-4.4-2.4-8.3-6.9-11.7-13.5-5.2-9.9-9.5-21.5-12.8-34.8-3.4-13.4-5.1-26.4-5.1-39 0-13.2 2.9-24.2 8.6-33 5.7-8.7 13.6-13.1 23.6-13.1 4.3 0 8.5 1.1 12.6 3.4 4.1 2.2 7.5 3.3 10.2 3.3 2.4 0 5.7-1.1 9.8-3.3 4.1-2.2 8.8-3.4 14.1-3.4 8.8 0 16.5 3.5 23 10.5-7.7 4.5-13 11.2-15.9 20.2 6.4 2.2 11.1 5.9 14 11.3 2.9 5.3 4.4 11.1 4.4 17.3 0 7.7-2.1 14.8-6.4 21.3-4.2 6.5-9.6 10.6-16.2 12.3l6.2 15.8zm-62.2-178.9c0-7.7 3-14.4 9-20.1 5.4-5.1 11.9-7.9 19.6-8.3-.1 8.5-2.9 15.6-8.3 21.2-5.3 5.5-11.8 8.7-19.4 9.5l-.9-2.3z"/>
+      </svg>
+      <span style={{ color: "#fff", fontSize: 15, fontWeight: 600, letterSpacing: "-0.01em" }}>
+        Apple Pay
+      </span>
+    </button>
   );
 }
 
-function GooglePayLogo() {
+// ── Google Pay button — official brand style ──────────────
+
+function GooglePayButton({ onClick }: { onClick: () => void }) {
   return (
-    <svg width="46" height="18" viewBox="0 0 46 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <path d="M21.87 9.09v4.59h-1.46V2.31h3.87a3.49 3.49 0 012.48.98 3.19 3.19 0 010 4.8 3.49 3.49 0 01-2.48.98h-2.41zm0-5.4v4.02h2.44c.57 0 1.11-.22 1.51-.61a2.06 2.06 0 000-2.81 2.12 2.12 0 00-1.51-.6h-2.44zm9.15 1.95c1.06 0 1.9.28 2.5.84.6.56.9 1.33.9 2.3v4.65H33v-1.05h-.06c-.58.86-1.35 1.29-2.32 1.29-.82 0-1.51-.24-2.07-.73a2.36 2.36 0 01-.83-1.85c0-.78.3-1.4.89-1.86.59-.46 1.38-.69 2.37-.69.84 0 1.54.15 2.08.46v-.32c0-.49-.2-.9-.58-1.24a2.02 2.02 0 00-1.36-.51c-.79 0-1.41.33-1.87.99l-1.34-.84c.73-1.03 1.81-1.54 3.21-1.54zm-1.95 5.88c0 .37.16.68.48.93.32.25.69.37 1.12.37.61 0 1.15-.22 1.63-.67.48-.45.72-.97.72-1.57-.45-.36-1.08-.54-1.88-.54-.58 0-1.07.14-1.46.43-.39.29-.61.64-.61 1.05zm11.49-5.64l-4.88 11.25h-1.5l1.81-3.92-3.2-7.33h1.58l2.32 5.63h.03l2.25-5.63h1.59z" fill="#3C4043"/>
-      <path d="M14.25 7.75c0-.46-.04-.9-.11-1.33H7.28v2.52h3.91a3.34 3.34 0 01-1.45 2.19v1.82h2.35c1.37-1.27 2.16-3.13 2.16-5.2z" fill="#4285F4"/>
-      <path d="M7.28 15c1.96 0 3.61-.65 4.81-1.76l-2.35-1.82c-.65.44-1.49.7-2.46.7-1.89 0-3.49-1.27-4.06-2.99H.79v1.88A7.28 7.28 0 007.28 15z" fill="#34A853"/>
-      <path d="M3.22 9.13a4.35 4.35 0 010-2.76V4.49H.79a7.3 7.3 0 000 6.52l2.43-1.88z" fill="#FBBC05"/>
-      <path d="M7.28 3.38a3.94 3.94 0 012.79 1.09l2.08-2.08A6.97 6.97 0 007.28.5 7.28 7.28 0 00.79 4.49l2.43 1.88c.57-1.72 2.17-2.99 4.06-2.99z" fill="#EA4335"/>
-    </svg>
+    <button
+      onClick={onClick}
+      aria-label="Pay with Google Pay"
+      style={{
+        flex: 1, height: 48, borderRadius: 10,
+        background: "#fff", border: "1.5px solid #dadce0", cursor: "pointer",
+        display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+        transition: "border-color 0.15s, box-shadow 0.15s",
+      }}
+      onMouseEnter={(e) => {
+        (e.currentTarget as HTMLButtonElement).style.borderColor = "#aaa";
+        (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 1px 6px rgba(0,0,0,0.12)";
+      }}
+      onMouseLeave={(e) => {
+        (e.currentTarget as HTMLButtonElement).style.borderColor = "#dadce0";
+        (e.currentTarget as HTMLButtonElement).style.boxShadow = "none";
+      }}
+    >
+      {/* Google G — four-colour official mark */}
+      <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+        <path d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 01-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62z" fill="#4285F4"/>
+        <path d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.91-2.26c-.81.54-1.84.86-3.05.86-2.34 0-4.33-1.58-5.04-3.71H.96v2.33C2.44 15.98 5.48 18 9 18z" fill="#34A853"/>
+        <path d="M3.96 10.71A5.41 5.41 0 013.64 9c0-.59.1-1.17.32-1.71V4.96H.96A9 9 0 000 9c0 1.45.35 2.82.96 4.04l3-2.33z" fill="#FBBC05"/>
+        <path d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0 5.48 0 2.44 2.02.96 4.96l3 2.33C4.67 5.16 6.66 3.58 9 3.58z" fill="#EA4335"/>
+      </svg>
+      <span style={{ fontSize: 15, fontWeight: 600, color: "#3c4043", letterSpacing: "-0.01em" }}>
+        Google Pay
+      </span>
+    </button>
+  );
+}
+
+// ── Skill context teaser modal ─────────────────────────────
+
+function ContextModal({
+  skillName,
+  onClose,
+  onUnlock,
+}: {
+  skillName: string;
+  onClose: () => void;
+  onUnlock: () => void;
+}) {
+  return (
+    <div
+      style={{
+        position: "fixed", inset: 0, zIndex: 100,
+        background: "rgba(0,0,0,0.45)", backdropFilter: "blur(4px)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        padding: "0 20px",
+      }}
+      onClick={onClose}
+    >
+      <div
+        style={{
+          background: "#fff", borderRadius: 20, padding: "28px 28px 24px",
+          maxWidth: 420, width: "100%", boxShadow: "0 20px 60px rgba(0,0,0,0.18)",
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
+          <div>
+            <p style={{ fontSize: 11, color: "#9ca3af", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4 }}>
+              Missing skill
+            </p>
+            <h3 style={{ fontSize: 18, fontWeight: 800, color: "#111827", letterSpacing: "-0.02em" }}>
+              {skillName}
+            </h3>
+          </div>
+          <button onClick={onClose} style={{ background: "none", border: "none", fontSize: 20, color: "#9ca3af", cursor: "pointer", lineHeight: 1, padding: 0 }}>
+            ×
+          </button>
+        </div>
+
+        <p style={{ fontSize: 13, color: "#4b5563", lineHeight: 1.6, marginBottom: 16 }}>
+          Tell us about your experience with <strong>{skillName}</strong> and we&rsquo;ll weave it naturally into your rewritten resume — even if it&rsquo;s not in your current draft.
+        </p>
+
+        <textarea
+          placeholder={`e.g. "I've used ${skillName} in three projects, including a migration for 50k users…"`}
+          style={{
+            width: "100%", boxSizing: "border-box",
+            height: 90, borderRadius: 10, border: "1.5px solid #e5e7eb",
+            padding: "10px 14px", fontSize: 13, lineHeight: 1.6,
+            color: "#111827", resize: "none", outline: "none",
+            background: "#f9fafb", fontFamily: "inherit",
+            marginBottom: 16,
+          }}
+          disabled
+        />
+
+        <div style={{
+          background: "rgba(99,102,241,0.05)", border: "1px solid rgba(99,102,241,0.15)",
+          borderRadius: 10, padding: "10px 14px", marginBottom: 16, display: "flex", gap: 8, alignItems: "center",
+        }}>
+          <span style={{ fontSize: 16 }}>🔒</span>
+          <p style={{ fontSize: 12, color: "#6b7280", lineHeight: 1.5 }}>
+            Your context is saved and applied during optimization — unlock to use it.
+          </p>
+        </div>
+
+        <button
+          onClick={onUnlock}
+          style={{
+            width: "100%", padding: "14px 20px",
+            background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+            color: "#fff", border: "none", borderRadius: 12,
+            fontSize: 14, fontWeight: 700, cursor: "pointer",
+            boxShadow: "0 4px 16px rgba(99,102,241,0.3)",
+          }}
+        >
+          Save context & unlock for $5 →
+        </button>
+      </div>
+    </div>
   );
 }
 
@@ -140,50 +262,56 @@ export default function PreAnalysisScreen({
   onMarketingOptInChange,
   onPurchase,
 }: PreAnalysisScreenProps) {
+  const [contextSkill, setContextSkill] = useState<string | null>(null);
+
   const firstName = extractFirstName(resumeText);
   const previewText = firstThird(resumeText);
   const previewLines = previewText.split("\n");
 
-  const missingSkills = analysis.skills.filter((s) => s.status === "missing");
-  const matchedSkills = analysis.skills.filter((s) => s.status === "matched");
+  // Filter to only meaningful skill names
+  const allSkills = analysis.skills.filter((s) => isRecognizableSkill(s.name));
+  const missingSkills = allSkills.filter((s) => s.status === "missing");
+  const matchedSkills = allSkills.filter((s) => s.status === "matched");
   const improvement = analysis.predictedAfter - analysis.scoreBefore;
 
-  // Skills matched stat
-  const totalSkills = analysis.skills.length;
+  const totalSkills = allSkills.length;
   const matchedCount = matchedSkills.length;
 
-  // Format issues from analysis (shown as fixed in "After")
   const formattingIssues = analysis.formattingIssues;
-
-  // Count bullets rewritten (approximation based on missing skills)
-  const bulletsRewritten = Math.min(missingSkills.length + 2, 9);
+  const bulletsRewritten = Math.min(missingSkills.length + 3, 9);
 
   return (
     <div style={{ minHeight: "100vh", background: "#f9fafb" }}>
+
+      {/* ── Context modal ── */}
+      {contextSkill && (
+        <ContextModal
+          skillName={contextSkill}
+          onClose={() => setContextSkill(null)}
+          onUnlock={() => {
+            setContextSkill(null);
+            onPurchase("one_time");
+          }}
+        />
+      )}
 
       {/* ── Header ── */}
       <div style={{ textAlign: "center", padding: "40px 24px 32px" }}>
         {firstName ? (
           <>
-            <p style={{ fontSize: 14, color: "#6b7280", marginBottom: 6 }}>Results ready for</p>
-            <h1 style={{
-              fontSize: 28, fontWeight: 800, color: "#111827",
-              letterSpacing: "-0.03em", marginBottom: 6,
-            }}>
-              {firstName}, your tailored resume is ready.
+            <p style={{ fontSize: 14, color: "#6b7280", marginBottom: 6 }}>Analysis ready for</p>
+            <h1 style={{ fontSize: 28, fontWeight: 800, color: "#111827", letterSpacing: "-0.03em", marginBottom: 6 }}>
+              {firstName}, here&rsquo;s what we found.
             </h1>
           </>
         ) : (
-          <h1 style={{
-            fontSize: 28, fontWeight: 800, color: "#111827",
-            letterSpacing: "-0.03em", marginBottom: 6,
-          }}>
-            Your tailored resume is ready.
+          <h1 style={{ fontSize: 28, fontWeight: 800, color: "#111827", letterSpacing: "-0.03em", marginBottom: 6 }}>
+            Here&rsquo;s what we found.
           </h1>
         )}
         {analysis.jobTitleHint && (
           <p style={{ fontSize: 14, color: "#6b7280" }}>
-            Optimised for{" "}
+            Analysed against{" "}
             <strong style={{ color: "#4b5563" }}>{analysis.jobTitleHint}</strong>
           </p>
         )}
@@ -196,14 +324,8 @@ export default function PreAnalysisScreen({
           display: "flex", justifyContent: "center", alignItems: "center",
           gap: 32, marginBottom: 32, flexWrap: "wrap",
         }}>
-          <ScoreRing
-            score={analysis.scoreBefore}
-            label="Current score"
-            delay={200}
-            color="#ef4444"
-          />
+          <ScoreRing score={analysis.scoreBefore} label="Current score" delay={200} color="#ef4444" />
 
-          {/* Arrow + improvement badge */}
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
             <svg width="32" height="20" viewBox="0 0 32 20" fill="none" aria-hidden="true">
               <path d="M1 10h28M22 3l7 7-7 7" stroke="#d1d5db" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -219,35 +341,15 @@ export default function PreAnalysisScreen({
             )}
           </div>
 
-          <ScoreRing
-            score={analysis.predictedAfter}
-            label="After ResuFit"
-            delay={1000}
-            color="#6366f1"
-          />
+          <ScoreRing score={analysis.predictedAfter} label="After ResuFit" delay={1000} color="#6366f1" />
         </div>
 
         {/* ── Stats Bar ── */}
-        <div style={{
-          display: "flex", justifyContent: "center", gap: 12,
-          marginBottom: 32, flexWrap: "wrap",
-        }}>
+        <div style={{ display: "flex", justifyContent: "center", gap: 12, marginBottom: 32, flexWrap: "wrap" }}>
           {[
-            {
-              label: "Skills matched",
-              before: `${matchedCount}/${totalSkills}`,
-              after: `${totalSkills}/${totalSkills}`,
-            },
-            {
-              label: "Bullets rewritten",
-              before: "0",
-              after: `${bulletsRewritten}`,
-            },
-            {
-              label: "Format issues",
-              before: `${formattingIssues.length} found`,
-              after: "0 remaining",
-            },
+            { label: "Skills matched", before: `${matchedCount}/${totalSkills}`, after: `${totalSkills}/${totalSkills}` },
+            { label: "Bullets rewritten", before: "0", after: `${bulletsRewritten}` },
+            { label: "Format issues", before: `${formattingIssues.length} found`, after: "0 remaining" },
           ].map((stat, i) => (
             <div key={i} style={{
               background: "#ffffff", border: "1px solid #e5e7eb",
@@ -266,37 +368,38 @@ export default function PreAnalysisScreen({
           ))}
         </div>
 
-        {/* ── ATS Compatibility ── */}
-        {formattingIssues.length > 0 && (
-          <div style={{
-            background: "#ffffff", border: "1px solid #e5e7eb",
-            borderRadius: 16, padding: 24, marginBottom: 24,
-            boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
-          }}>
-            <p style={{ fontSize: 14, fontWeight: 700, color: "#111827", marginBottom: 4, display: "flex", alignItems: "center", gap: 8 }}>
-              🛡️ Hiring Software Compatibility
-            </p>
-            <p style={{ fontSize: 12, color: "#6b7280", marginBottom: 16, lineHeight: 1.6 }}>
-              Most companies use automated screening software that filters resumes before a recruiter ever sees them.
-              Here&apos;s what we found — and fixed — in yours:
-            </p>
-            {formattingIssues.map((issue, i) => (
-              <div key={i} style={{
-                display: "flex", alignItems: "flex-start", gap: 10, padding: "8px 0",
-                borderBottom: i < formattingIssues.length - 1 ? "1px solid #f3f4f6" : "none",
+        {/* ── ATS Compatibility ── always shown ── */}
+        <div style={{
+          background: "#ffffff", border: "1px solid #e5e7eb",
+          borderRadius: 16, padding: 24, marginBottom: 24,
+          boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
+        }}>
+          <p style={{ fontSize: 14, fontWeight: 700, color: "#111827", marginBottom: 4 }}>
+            🛡️ Hiring Software Compatibility
+          </p>
+          <p style={{ fontSize: 12, color: "#6b7280", marginBottom: 16, lineHeight: 1.6 }}>
+            Over 90% of employers use automated screening software before a recruiter ever reads your resume.
+            Here&rsquo;s what we found — and what we&rsquo;ll fix:
+          </p>
+          {formattingIssues.map((issue, i) => (
+            <div key={i} style={{
+              display: "flex", alignItems: "flex-start", gap: 10, padding: "9px 0",
+              borderBottom: i < formattingIssues.length - 1 ? "1px solid #f3f4f6" : "none",
+            }}>
+              <span style={{
+                fontSize: 9, fontWeight: 700, padding: "2px 6px", borderRadius: 4, marginTop: 2, flexShrink: 0,
+                background: "rgba(239,68,68,0.08)", color: "#ef4444",
               }}>
-                <span style={{
-                  fontSize: 9, fontWeight: 700, padding: "2px 6px", borderRadius: 4, marginTop: 2, flexShrink: 0,
-                  background: "rgba(239,68,68,0.08)", color: "#ef4444",
-                }}>
-                  FIXED
-                </span>
-                <span style={{ fontSize: 13, color: "#4b5563", flex: 1, lineHeight: 1.5 }}>{issue}</span>
-                <span style={{ color: "#10b981", fontSize: 12, fontWeight: 600, flexShrink: 0 }}>✓</span>
-              </div>
-            ))}
-          </div>
-        )}
+                FLAGGED
+              </span>
+              <span style={{ fontSize: 13, color: "#4b5563", flex: 1, lineHeight: 1.5 }}>{issue}</span>
+              <span style={{ color: "#d1d5db", fontSize: 12, fontWeight: 600, flexShrink: 0 }}>🔒</span>
+            </div>
+          ))}
+          <p style={{ fontSize: 11, color: "#9ca3af", marginTop: 12, fontStyle: "italic" }}>
+            All issues resolved in your optimised resume.
+          </p>
+        </div>
 
         {/* ── Resume Preview ── */}
         <div style={{
@@ -304,7 +407,6 @@ export default function PreAnalysisScreen({
           borderRadius: 16, marginBottom: 24, overflow: "hidden",
           boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
         }}>
-          {/* Header */}
           <div style={{
             padding: "14px 20px", borderBottom: "1px solid #f3f4f6",
             display: "flex", alignItems: "center", justifyContent: "space-between",
@@ -322,35 +424,26 @@ export default function PreAnalysisScreen({
             <span style={{ fontSize: 11, color: "#9ca3af" }}>Preview — unlock to download</span>
           </div>
 
-          {/* Content */}
           <div style={{ position: "relative", maxHeight: 320, overflow: "hidden" }}>
             <div style={{
               padding: "20px 24px",
               fontFamily: "Georgia, 'Times New Roman', serif",
-              fontSize: 11,
-              lineHeight: 1.7,
-              color: "#374151",
-              whiteSpace: "pre-wrap",
-              wordBreak: "break-word",
+              fontSize: 11, lineHeight: 1.7, color: "#374151",
+              whiteSpace: "pre-wrap", wordBreak: "break-word",
             }}>
               {previewLines.map((line, i) => (
                 <div key={i} style={{ minHeight: "1em" }}>{line || " "}</div>
               ))}
             </div>
 
-            {/* Blur overlay — bottom portion */}
             <div style={{
               position: "absolute", bottom: 0, left: 0, right: 0, height: 160,
               background: "linear-gradient(to bottom, rgba(255,255,255,0.1), rgba(255,255,255,0.97))",
-              backdropFilter: "blur(5px)",
-              WebkitBackdropFilter: "blur(5px)",
+              backdropFilter: "blur(5px)", WebkitBackdropFilter: "blur(5px)",
               display: "flex", alignItems: "flex-end", justifyContent: "center",
               paddingBottom: 20,
             }}>
-              <div style={{
-                display: "flex", alignItems: "center", gap: 8,
-                color: "#4b5563", fontSize: 12, fontWeight: 600,
-              }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#4b5563", fontSize: 12, fontWeight: 600 }}>
                 <span>🔒</span>
                 <span>Unlock to see your full rewritten resume</span>
               </div>
@@ -364,33 +457,60 @@ export default function PreAnalysisScreen({
           borderRadius: 16, padding: 24, marginBottom: 24,
           boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
         }}>
-          <p style={{ fontSize: 14, fontWeight: 700, color: "#111827", marginBottom: 16 }}>
+          <p style={{ fontSize: 14, fontWeight: 700, color: "#111827", marginBottom: 4 }}>
             Skills Match Breakdown
           </p>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-            {matchedSkills.map((skill, i) => (
-              <span key={i} style={{
-                padding: "4px 10px", borderRadius: 6, fontSize: 11, fontWeight: 600,
-                background: "rgba(16,185,129,0.08)", color: "#059669",
-                border: "1px solid rgba(16,185,129,0.15)",
-              }}>
-                {skill.name}
-              </span>
-            ))}
-            {missingSkills.map((skill, i) => (
-              <span key={i} style={{
-                padding: "4px 10px", borderRadius: 6, fontSize: 11, fontWeight: 600,
-                background: "rgba(99,102,241,0.08)", color: "#6366f1",
-                border: "1px solid rgba(99,102,241,0.2)",
-              }}>
-                + {skill.name}
-              </span>
-            ))}
-          </div>
-          <div style={{ display: "flex", gap: 20, marginTop: 14, fontSize: 10, color: "#9ca3af" }}>
-            <span style={{ color: "#059669" }}>● Already in your resume</span>
-            <span style={{ color: "#6366f1" }}>+ Added by ResuFit</span>
-          </div>
+          <p style={{ fontSize: 12, color: "#6b7280", marginBottom: 16, lineHeight: 1.6 }}>
+            Keywords from the job description compared against your resume.
+            Missing skills will be added contextually — click any to tell us more.
+          </p>
+
+          {/* Matched skills */}
+          {matchedSkills.length > 0 && (
+            <div style={{ marginBottom: 12 }}>
+              <p style={{ fontSize: 10, color: "#059669", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>
+                ✓ Already in your resume
+              </p>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                {matchedSkills.map((skill, i) => (
+                  <span key={i} style={{
+                    padding: "5px 11px", borderRadius: 7, fontSize: 12, fontWeight: 600,
+                    background: "rgba(16,185,129,0.07)", color: "#059669",
+                    border: "1px solid rgba(16,185,129,0.18)",
+                  }}>
+                    {skill.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Missing skills with context teasers */}
+          {missingSkills.length > 0 && (
+            <div>
+              <p style={{ fontSize: 10, color: "#6366f1", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>
+                + Will be added by ResuFit
+              </p>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                {missingSkills.map((skill, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setContextSkill(skill.name)}
+                    title={`Tell us about your ${skill.name} experience`}
+                    style={{
+                      padding: "5px 11px", borderRadius: 7, fontSize: 12, fontWeight: 600,
+                      background: "rgba(99,102,241,0.07)", color: "#6366f1",
+                      border: "1px solid rgba(99,102,241,0.2)",
+                      cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 5,
+                    }}
+                  >
+                    {skill.name}
+                    <span style={{ fontSize: 10, opacity: 0.7 }}>+ tell us more</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* ── Payment Card ── */}
@@ -400,15 +520,12 @@ export default function PreAnalysisScreen({
           boxShadow: "0 8px 30px rgba(99,102,241,0.10), 0 2px 8px rgba(0,0,0,0.04)",
         }}>
           {/* Indigo header */}
-          <div style={{
-            background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)",
-            padding: "20px 28px",
-          }}>
+          <div style={{ background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)", padding: "20px 28px" }}>
             <p style={{ fontSize: 18, fontWeight: 800, color: "#ffffff", marginBottom: 4, letterSpacing: "-0.02em" }}>
               Download your optimised resume
             </p>
-            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.8)" }}>
-              Tailored, formatted, and ready to submit
+            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.85)" }}>
+              You&rsquo;ll get a professionally analyzed, job-matched, resume that&rsquo;s ready-to-send.
             </p>
           </div>
 
@@ -444,7 +561,7 @@ export default function PreAnalysisScreen({
               </label>
             </div>
 
-            {/* Primary CTA */}
+            {/* One-time CTA */}
             <button
               onClick={() => onPurchase("one_time")}
               style={{
@@ -456,57 +573,93 @@ export default function PreAnalysisScreen({
                 letterSpacing: "-0.01em",
               }}
             >
-              Download your optimised resume — $5
+              Download optimised resume — $5
             </button>
 
             {/* Apple Pay + Google Pay */}
-            <div style={{ display: "flex", gap: 10, marginBottom: 16 }}>
-              <button
-                onClick={() => onPurchase("one_time")}
-                style={{
-                  flex: 1, padding: "12px 16px",
-                  background: "#000000", color: "#ffffff",
-                  border: "none", borderRadius: 10,
-                  fontSize: 13, fontWeight: 600, cursor: "pointer",
-                  display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-                }}
-              >
-                <ApplePayLogo />
-              </button>
-              <button
-                onClick={() => onPurchase("one_time")}
-                style={{
-                  flex: 1, padding: "12px 16px",
-                  background: "#ffffff", color: "#3c4043",
-                  border: "1.5px solid #dadce0", borderRadius: 10,
-                  fontSize: 13, fontWeight: 600, cursor: "pointer",
-                  display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-                }}
-              >
-                <GooglePayLogo />
-              </button>
+            <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
+              <ApplePayButton onClick={() => onPurchase("one_time")} />
+              <GooglePayButton onClick={() => onPurchase("one_time")} />
             </div>
 
-            {/* Pro link */}
-            <p style={{ textAlign: "center", fontSize: 13, color: "#6b7280", marginBottom: 16 }}>
-              Or{" "}
-              <button
-                onClick={() => onPurchase("pro")}
-                style={{
-                  background: "none", border: "none", color: "#6366f1",
-                  cursor: "pointer", fontWeight: 600, fontSize: 13,
-                  textDecoration: "underline", padding: 0,
-                }}
-              >
-                get unlimited for $15/month →
-              </button>
-            </p>
+            {/* Divider */}
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+              <div style={{ flex: 1, height: 1, background: "#f3f4f6" }} />
+              <span style={{ fontSize: 11, color: "#9ca3af", fontWeight: 500 }}>or go unlimited</span>
+              <div style={{ flex: 1, height: 1, background: "#f3f4f6" }} />
+            </div>
+
+            {/* Pro tier card — presented as a genuine, compelling option */}
+            <div
+              onClick={() => onPurchase("pro")}
+              style={{
+                border: "2px solid #c7d2fe", borderRadius: 14,
+                overflow: "hidden", cursor: "pointer", marginBottom: 18,
+                transition: "border-color 0.15s, box-shadow 0.15s",
+                boxShadow: "0 2px 12px rgba(99,102,241,0.08)",
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLDivElement).style.borderColor = "#818cf8";
+                (e.currentTarget as HTMLDivElement).style.boxShadow = "0 4px 20px rgba(99,102,241,0.18)";
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLDivElement).style.borderColor = "#c7d2fe";
+                (e.currentTarget as HTMLDivElement).style.boxShadow = "0 2px 12px rgba(99,102,241,0.08)";
+              }}
+            >
+              {/* Pro header strip */}
+              <div style={{
+                background: "linear-gradient(135deg, #eef2ff, #f5f3ff)",
+                padding: "12px 18px",
+                display: "flex", justifyContent: "space-between", alignItems: "center",
+                borderBottom: "1px solid #e0e7ff",
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ fontSize: 14, fontWeight: 800, color: "#3730a3" }}>ResuFit Pro</span>
+                  <span style={{
+                    fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 20,
+                    background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+                    color: "#fff",
+                  }}>
+                    Best value
+                  </span>
+                </div>
+                <div style={{ textAlign: "right" }}>
+                  <span style={{ fontSize: 20, fontWeight: 900, color: "#111827" }}>$15</span>
+                  <span style={{ fontSize: 12, color: "#6b7280", fontWeight: 500 }}>/month</span>
+                </div>
+              </div>
+
+              {/* Pro benefits */}
+              <div style={{ padding: "14px 18px", background: "#ffffff" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "7px 16px", marginBottom: 14 }}>
+                  {[
+                    "Unlimited optimisations",
+                    "Cover letter writer",
+                    "LinkedIn profile optimiser",
+                    "Priority processing",
+                    "Job tracker dashboard",
+                    "Cancel anytime",
+                  ].map((benefit) => (
+                    <span key={benefit} style={{ fontSize: 12, color: "#374151", display: "flex", alignItems: "center", gap: 5 }}>
+                      <span style={{ color: "#6366f1", fontWeight: 800, fontSize: 12 }}>✓</span>
+                      {benefit}
+                    </span>
+                  ))}
+                </div>
+                <div style={{
+                  width: "100%", padding: "10px 0", borderRadius: 10, textAlign: "center",
+                  background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+                  color: "#fff", fontSize: 13, fontWeight: 700,
+                  boxShadow: "0 2px 10px rgba(99,102,241,0.25)",
+                }}>
+                  Get Pro — $15/month →
+                </div>
+              </div>
+            </div>
 
             {/* Trust badges */}
-            <div style={{
-              display: "flex", justifyContent: "center", gap: 16,
-              fontSize: 11, color: "#9ca3af", flexWrap: "wrap",
-            }}>
+            <div style={{ display: "flex", justifyContent: "center", gap: 16, fontSize: 11, color: "#9ca3af", flexWrap: "wrap" }}>
               <span>🔒 Secure payment</span>
               <span>📄 PDF + editable Word</span>
               <span>⚡ Instant download</span>
@@ -515,30 +668,6 @@ export default function PreAnalysisScreen({
           </div>
         </div>
 
-      </div>
-
-      {/* ── Sticky mobile CTA ── */}
-      <div style={{
-        position: "fixed", bottom: 0, left: 0, right: 0,
-        background: "rgba(255,255,255,0.96)",
-        backdropFilter: "blur(12px)",
-        WebkitBackdropFilter: "blur(12px)",
-        borderTop: "1px solid #e5e7eb",
-        padding: "12px 20px 20px",
-        display: "none",  // shown via media query in globals.css if needed
-      }} className="mobile-cta-bar">
-        <button
-          onClick={() => onPurchase("one_time")}
-          style={{
-            width: "100%", padding: "14px 24px",
-            background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
-            color: "#fff", border: "none", borderRadius: 12,
-            fontSize: 15, fontWeight: 700, cursor: "pointer",
-            boxShadow: "0 4px 16px rgba(99,102,241,0.3)",
-          }}
-        >
-          Unlock my resume — $5 →
-        </button>
       </div>
 
     </div>
