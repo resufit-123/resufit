@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import type { Plan } from "@/types";
 import type { AnalysisResult } from "@/app/results/[id]/page";
+import Logo from "@/components/Logo";
 
 interface PreAnalysisScreenProps {
   analysis: AnalysisResult;
@@ -118,9 +119,9 @@ function ApplePayButton({ onClick }: { onClick: () => void }) {
       onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.opacity = "0.85"; }}
       onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.opacity = "1"; }}
     >
-      {/* Apple logo — correct two-path silhouette */}
-      <svg width="16" height="20" viewBox="0 0 496 512" fill="white" aria-hidden="true">
-        <path d="M248.4 84.3c1.6 0 9.6 1.7 19.9 9.3 10.7 7.8 15.7 19 15.7 33.7 0 13.8-4.5 24.6-13.4 32.3-8.4 7.4-17.7 11.1-27.9 11.1-3.8 0-7.4-.4-10.8-1.3-3.1-.8-6.6-2.3-10.4-4.4l4.3-9.3c4.3 2.6 9.2 3.9 14.7 3.9 7.3 0 13.7-2.4 19.1-7.2 5.5-4.9 8.2-11.4 8.2-19.5 0-8.5-2.7-15.2-8.1-20.1-5.3-4.9-11.7-7.3-19.2-7.3-4.5 0-8.7 1-12.8 3l-4.3-9.3c5.4-2.2 11.2-3.2 17.5-3.2zm-93.7 79.6c-8.5 0-15.1 3-19.8 8.9-4.7 5.9-7.1 13.5-7.1 22.7 0 9.5 2.3 17.1 7 22.9 4.6 5.7 11.3 8.5 20 8.5 5.9 0 11.5-1.5 16.8-4.6l4 9.8c-6.2 3.8-13.4 5.7-21.6 5.7-12.9 0-23-4.1-30.3-12.4-7.3-8.3-10.9-19.3-10.9-33.1 0-13.3 3.8-24.1 11.4-32.3 7.6-8.2 17.9-12.4 30.9-12.4 7.1 0 13.7 1.6 19.8 4.7l-3.9 9.7c-5.2-2.7-10.6-4.1-16.3-4.1zm211.4 158.7c-2 4.9-4.1 9.6-6.4 14.1-3.4 6.5-7.3 11-11.7 13.5-4.3 2.4-9.5 3.6-15.4 3.6-4.9 0-9.5-1.1-13.8-3.3-4.3-2.2-7.9-3.3-10.7-3.3-2.8 0-6.5 1.1-11 3.3-4.5 2.2-9 3.3-13.4 3.3-5.6 0-10.6-1.2-14.9-3.6-4.4-2.4-8.3-6.9-11.7-13.5-5.2-9.9-9.5-21.5-12.8-34.8-3.4-13.4-5.1-26.4-5.1-39 0-13.2 2.9-24.2 8.6-33 5.7-8.7 13.6-13.1 23.6-13.1 4.3 0 8.5 1.1 12.6 3.4 4.1 2.2 7.5 3.3 10.2 3.3 2.4 0 5.7-1.1 9.8-3.3 4.1-2.2 8.8-3.4 14.1-3.4 8.8 0 16.5 3.5 23 10.5-7.7 4.5-13 11.2-15.9 20.2 6.4 2.2 11.1 5.9 14 11.3 2.9 5.3 4.4 11.1 4.4 17.3 0 7.7-2.1 14.8-6.4 21.3-4.2 6.5-9.6 10.6-16.2 12.3l6.2 15.8zm-62.2-178.9c0-7.7 3-14.4 9-20.1 5.4-5.1 11.9-7.9 19.6-8.3-.1 8.5-2.9 15.6-8.3 21.2-5.3 5.5-11.8 8.7-19.4 9.5l-.9-2.3z"/>
+      {/* Apple logo — standard two-path silhouette (fa-apple) */}
+      <svg width="14" height="17" viewBox="0 0 814 1000" fill="white" aria-hidden="true">
+        <path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-57.8-155.5-127.4C46 790.7 0 665.6 0 546.8c0-250.9 174.1-383.5 345.7-383.5 91.2 0 167.2 60.6 224.5 60.6 54.8 0 140.8-64.4 243.2-64.4zm-65.5-120.7c37.5-44.7 64.7-107.8 64.7-170.9 0-8.9-.7-17.9-2.2-25.5-60.5 2.4-132.9 40.2-176.4 90.9-33.5 38.2-66.7 101.3-66.7 165.3 0 9.7 1.6 19.4 2.2 22.3 4.2.7 11 1.6 17.8 1.6 53.6 0 120.6-36.1 160.6-83.7z"/>
       </svg>
       <span style={{ color: "#fff", fontSize: 15, fontWeight: 600, letterSpacing: "-0.01em" }}>
         Apple Pay
@@ -295,38 +296,30 @@ export default function PreAnalysisScreen({
         />
       )}
 
-      {/* ── Header ── */}
-      <div style={{ textAlign: "center", padding: "40px 24px 28px" }}>
-        {/* Analysis complete pill */}
-        <div style={{
-          display: "inline-flex", alignItems: "center", gap: 6,
-          background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.18)",
-          borderRadius: 20, padding: "5px 13px", marginBottom: 16,
-        }}>
-          <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#6366f1", display: "inline-block", flexShrink: 0 }} />
-          <span style={{ fontSize: 12, fontWeight: 600, color: "#6366f1", letterSpacing: "0.01em" }}>
-            {analysis.jobTitleHint
-              ? <>Analysed for: <strong>{analysis.jobTitleHint}</strong></>
-              : "Analysis complete"
-            }
-          </span>
-        </div>
+      {/* ── Site nav ── */}
+      <header style={{
+        maxWidth: 880, margin: "0 auto", width: "100%",
+        padding: "20px 28px 0",
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        boxSizing: "border-box",
+      }}>
+        <Logo size="md" />
+      </header>
 
-        {/* Headline — positive, confident, forward-looking */}
+      {/* ── Page headline ── */}
+      <div style={{ textAlign: "center", padding: "32px 24px 24px" }}>
         <h1 style={{
-          fontSize: "clamp(1.65rem, 3.5vw, 2.15rem)",
+          fontSize: "clamp(1.55rem, 3.5vw, 2rem)",
           fontWeight: 900, color: "#111827",
           letterSpacing: "-0.04em", lineHeight: 1.15,
-          margin: "0 0 10px",
+          margin: "0 0 8px",
         }}>
           {firstName
             ? <>{firstName}, we know exactly what to change.</>
             : <>We know exactly what to change.</>
           }
         </h1>
-
-        {/* One punchy line — no anxiety, just momentum */}
-        <p style={{ fontSize: 15, color: "#6b7280", margin: 0 }}>
+        <p style={{ fontSize: 14, color: "#6b7280", margin: 0 }}>
           Your optimised resume is ready. Here&rsquo;s the full picture.
         </p>
       </div>
@@ -359,7 +352,7 @@ export default function PreAnalysisScreen({
         </div>
 
         {/* ── Stats Bar ── */}
-        <div style={{ display: "flex", justifyContent: "center", gap: 12, marginBottom: 32, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", justifyContent: "center", gap: 12, marginBottom: 20, flexWrap: "wrap" }}>
           {[
             { label: "Skills matched", before: `${matchedCount}/${totalSkills}`, after: `${totalSkills}/${totalSkills}` },
             { label: "Bullets rewritten", before: "0", after: `${bulletsRewritten}` },
@@ -367,29 +360,61 @@ export default function PreAnalysisScreen({
           ].map((stat, i) => (
             <div key={i} style={{
               background: "#ffffff", border: "1px solid #e5e7eb",
-              borderRadius: 12, padding: "14px 18px", textAlign: "center",
-              minWidth: 140, boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
+              borderRadius: 12, padding: "12px 18px", textAlign: "center",
+              minWidth: 130, boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
             }}>
-              <p style={{ fontSize: 10, color: "#9ca3af", marginBottom: 6, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+              <p style={{ fontSize: 10, color: "#9ca3af", marginBottom: 5, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>
                 {stat.label}
               </p>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 7 }}>
                 <span style={{ color: "#ef4444", fontSize: 13, fontWeight: 700 }}>{stat.before}</span>
-                <span style={{ color: "#d1d5db", fontSize: 12 }}>→</span>
+                <span style={{ color: "#d1d5db", fontSize: 11 }}>→</span>
                 <span style={{ color: "#10b981", fontSize: 13, fontWeight: 700 }}>{stat.after}</span>
               </div>
             </div>
           ))}
         </div>
 
-        {/* ── ATS Compatibility ── always shown ── */}
+        {/* ── Slimline pay strip — for decisive users who've seen enough ── */}
+        <div
+          onClick={() => onPurchase("one_time")}
+          style={{
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+            borderRadius: 12, padding: "14px 20px", marginBottom: 24,
+            cursor: "pointer", gap: 12,
+            boxShadow: "0 4px 16px rgba(99,102,241,0.28)",
+            transition: "box-shadow 0.15s, transform 0.1s",
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLDivElement).style.boxShadow = "0 6px 22px rgba(99,102,241,0.4)";
+            (e.currentTarget as HTMLDivElement).style.transform = "translateY(-1px)";
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLDivElement).style.boxShadow = "0 4px 16px rgba(99,102,241,0.28)";
+            (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)";
+          }}
+        >
+          <span style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>
+            Ready? Download your optimised resume
+          </span>
+          <span style={{
+            fontSize: 13, fontWeight: 800, color: "#fff",
+            background: "rgba(255,255,255,0.18)", borderRadius: 8,
+            padding: "6px 14px", whiteSpace: "nowrap", flexShrink: 0,
+          }}>
+            Get it now — $5 →
+          </span>
+        </div>
+
+        {/* ── ATS Compatibility — compact proof-of-work panel ── */}
         <div style={{
           background: "#ffffff", border: "1px solid #e5e7eb",
-          borderRadius: 16, padding: 24, marginBottom: 24,
+          borderRadius: 16, padding: "18px 20px", marginBottom: 24,
           boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
         }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-            <p style={{ fontSize: 14, fontWeight: 700, color: "#111827" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+            <p style={{ fontSize: 13, fontWeight: 700, color: "#111827" }}>
               🛡️ Hiring Software Compatibility
             </p>
             <span style={{
@@ -397,30 +422,29 @@ export default function PreAnalysisScreen({
               background: "rgba(16,185,129,0.08)", color: "#059669",
               border: "1px solid rgba(16,185,129,0.2)",
             }}>
-              {formattingIssues.length} fixes included
+              {formattingIssues.length} fixed ✓
             </span>
           </div>
-          {formattingIssues.map((issue, i) => (
-            <div key={i} style={{
-              display: "flex", alignItems: "flex-start", gap: 10,
-              padding: "8px 0",
-              borderBottom: i < formattingIssues.length - 1 ? "1px solid #f9fafb" : "none",
-            }}>
-              {/* Green tick — this is work being done FOR them */}
-              <span style={{
-                width: 18, height: 18, borderRadius: "50%", flexShrink: 0, marginTop: 1,
-                background: "rgba(16,185,129,0.1)", border: "1.5px solid rgba(16,185,129,0.25)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 10, color: "#059669", fontWeight: 900,
+          {/* Compact chip grid — scannable in 2 seconds */}
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
+            {[
+              "ATS parsing",
+              "Keyword alignment",
+              "Section structure",
+              "Date formatting",
+              "Content depth",
+              "Contact details",
+            ].map((label) => (
+              <span key={label} style={{
+                display: "inline-flex", alignItems: "center", gap: 5,
+                fontSize: 12, fontWeight: 600, color: "#059669",
+                background: "rgba(16,185,129,0.07)", border: "1px solid rgba(16,185,129,0.18)",
+                borderRadius: 20, padding: "4px 11px",
               }}>
-                ✓
+                <span style={{ fontSize: 10, fontWeight: 900 }}>✓</span> {label}
               </span>
-              <span style={{ fontSize: 13, color: "#374151", flex: 1, lineHeight: 1.5 }}>
-                <strong style={{ color: "#059669", fontWeight: 700 }}>Fixed: </strong>
-                {issue}
-              </span>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
         {/* ── Resume Preview ── */}
