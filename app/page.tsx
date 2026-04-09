@@ -307,11 +307,11 @@ export default function HomePage() {
                 }}>
                   3
                 </span>
-                <span>Optimise my resume now</span>
+                <span>Optimise my resume now — $5</span>
               </button>
 
               <p style={{ textAlign: "center", fontSize: 12, color: "#6b7280", margin: "10px 0 0" }}>
-                Polished resume, job-matched analysis, editable Word + PDF — yours for <strong style={{ color: "#4b5563" }}>$5</strong>.
+                Polished resume, job-matched analysis, editable Word + PDF — ready to send.
               </p>
             </div>
 
