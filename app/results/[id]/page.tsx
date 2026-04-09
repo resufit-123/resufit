@@ -44,8 +44,13 @@ export default function ResultsPage() {
   const [selectedTemplate, setSelectedTemplate] = useState<Template>("executive");
   const [email, setEmail] = useState("");
   const [marketingOptIn, setMarketingOptIn] = useState(false);
+  const [storedResumeText, setStoredResumeText] = useState<string>("");
 
   useEffect(() => {
+    // Grab resume text for preview on pre-analysis screen
+    const rt = sessionStorage.getItem("rf_resume_text") ?? "";
+    setStoredResumeText(rt);
+
     if (justPaid) {
       // Came back from Stripe — run the full AI optimization
       runOptimization();
@@ -194,6 +199,7 @@ export default function ResultsPage() {
     return (
       <PreAnalysisScreen
         analysis={analysis}
+        resumeText={storedResumeText}
         email={email}
         marketingOptIn={marketingOptIn}
         onEmailChange={setEmail}
