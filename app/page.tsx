@@ -119,13 +119,13 @@ export default function HomePage() {
               lineHeight: 1.15,
               margin: "0 0 14px",
             }}>
-              Get the resume{" "}
+              Get the resume that gets you{" "}
               <span style={{
                 background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
               }}>
-                that gets you hired.
+                hired.
               </span>
             </h1>
             <p style={{ fontSize: 15, color: "#4b5563", margin: 0, lineHeight: 1.5 }}>
@@ -307,12 +307,11 @@ export default function HomePage() {
                 }}>
                   3
                 </span>
-                <span>Optimise my resume — free analysis</span>
+                <span>Optimise my resume now</span>
               </button>
 
-              <p style={{ textAlign: "center", fontSize: 12, color: "#9ca3af", margin: "10px 0 0" }}>
-                Free to analyse &nbsp;·&nbsp;{" "}
-                <strong style={{ color: "#6b7280" }}>$5</strong> to download &nbsp;·&nbsp; PDF + editable Word
+              <p style={{ textAlign: "center", fontSize: 12, color: "#6b7280", margin: "10px 0 0" }}>
+                Polished resume, job-matched analysis, editable Word + PDF — yours for <strong style={{ color: "#4b5563" }}>$5</strong>.
               </p>
             </div>
 
