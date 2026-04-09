@@ -296,45 +296,39 @@ export default function PreAnalysisScreen({
       )}
 
       {/* ── Header ── */}
-      <div style={{ textAlign: "center", padding: "44px 24px 32px" }}>
-        {/* Scan complete pill */}
+      <div style={{ textAlign: "center", padding: "40px 24px 28px" }}>
+        {/* Analysis complete pill */}
         <div style={{
           display: "inline-flex", alignItems: "center", gap: 6,
           background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.18)",
-          borderRadius: 20, padding: "5px 13px", marginBottom: 20,
+          borderRadius: 20, padding: "5px 13px", marginBottom: 16,
         }}>
           <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#6366f1", display: "inline-block", flexShrink: 0 }} />
           <span style={{ fontSize: 12, fontWeight: 600, color: "#6366f1", letterSpacing: "0.01em" }}>
-            Resume scan complete
+            {analysis.jobTitleHint
+              ? <>Analysed for: <strong>{analysis.jobTitleHint}</strong></>
+              : "Analysis complete"
+            }
           </span>
         </div>
 
-        {/* Main hook */}
+        {/* Headline — positive, confident, forward-looking */}
         <h1 style={{
-          fontSize: "clamp(1.6rem, 3.5vw, 2.1rem)",
+          fontSize: "clamp(1.65rem, 3.5vw, 2.15rem)",
           fontWeight: 900, color: "#111827",
           letterSpacing: "-0.04em", lineHeight: 1.15,
-          margin: "0 0 14px",
+          margin: "0 0 10px",
         }}>
           {firstName
-            ? <>{firstName}, here&rsquo;s why you&rsquo;re not hearing back.</>
-            : <>Here&rsquo;s why you&rsquo;re not hearing back.</>
+            ? <>{firstName}, we know exactly what to change.</>
+            : <>We know exactly what to change.</>
           }
         </h1>
 
-        {/* Emotional sub-copy */}
-        <p style={{ fontSize: 15, color: "#4b5563", lineHeight: 1.6, maxWidth: 480, margin: "0 auto 10px" }}>
-          Most resumes are eliminated before a recruiter reads a single word.
-          Hiring software scores every applicant automatically.
-          We&rsquo;ve just run yours through the same process.
+        {/* One punchy line — no anxiety, just momentum */}
+        <p style={{ fontSize: 15, color: "#6b7280", margin: 0 }}>
+          Your optimised resume is ready. Here&rsquo;s the full picture.
         </p>
-
-        {analysis.jobTitleHint && (
-          <p style={{ fontSize: 13, color: "#9ca3af" }}>
-            Analysed against{" "}
-            <strong style={{ color: "#6b7280" }}>{analysis.jobTitleHint}</strong>
-          </p>
-        )}
       </div>
 
       <div style={{ maxWidth: 860, margin: "0 auto", padding: "0 20px 80px" }}>
@@ -394,42 +388,37 @@ export default function PreAnalysisScreen({
           borderRadius: 16, padding: 24, marginBottom: 24,
           boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
         }}>
-          <p style={{ fontSize: 14, fontWeight: 700, color: "#111827", marginBottom: 4 }}>
-            🛡️ Hiring Software Compatibility
-          </p>
-          <p style={{ fontSize: 12, color: "#6b7280", marginBottom: 16, lineHeight: 1.6 }}>
-            Over 90% of employers use automated screening software before a recruiter ever reads your resume.
-            Here&rsquo;s what we found — and what we&rsquo;ll fix:
-          </p>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+            <p style={{ fontSize: 14, fontWeight: 700, color: "#111827" }}>
+              🛡️ Hiring Software Compatibility
+            </p>
+            <span style={{
+              fontSize: 10, fontWeight: 700, padding: "3px 9px", borderRadius: 20,
+              background: "rgba(16,185,129,0.08)", color: "#059669",
+              border: "1px solid rgba(16,185,129,0.2)",
+            }}>
+              {formattingIssues.length} fixes included
+            </span>
+          </div>
           {formattingIssues.map((issue, i) => (
             <div key={i} style={{
-              padding: "10px 0",
-              borderBottom: i < formattingIssues.length - 1 ? "1px solid #f3f4f6" : "none",
+              display: "flex", alignItems: "flex-start", gap: 10,
+              padding: "8px 0",
+              borderBottom: i < formattingIssues.length - 1 ? "1px solid #f9fafb" : "none",
             }}>
-              {/* Problem row */}
-              <div style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 6 }}>
-                <span style={{
-                  fontSize: 9, fontWeight: 700, padding: "2px 6px", borderRadius: 4, marginTop: 2, flexShrink: 0,
-                  background: "rgba(239,68,68,0.08)", color: "#ef4444",
-                }}>
-                  FLAGGED
-                </span>
-                <span style={{ fontSize: 13, color: "#4b5563", flex: 1, lineHeight: 1.5 }}>{issue}</span>
-              </div>
-              {/* Resolution row */}
-              <div style={{ display: "flex", alignItems: "center", gap: 8, paddingLeft: 44 }}>
-                <span style={{
-                  width: 16, height: 16, borderRadius: "50%", flexShrink: 0,
-                  background: "rgba(16,185,129,0.1)", border: "1.5px solid rgba(16,185,129,0.3)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: 9, color: "#059669", fontWeight: 900,
-                }}>
-                  ✓
-                </span>
-                <span style={{ fontSize: 11, color: "#059669", fontWeight: 600 }}>
-                  Fixed in your optimised resume
-                </span>
-              </div>
+              {/* Green tick — this is work being done FOR them */}
+              <span style={{
+                width: 18, height: 18, borderRadius: "50%", flexShrink: 0, marginTop: 1,
+                background: "rgba(16,185,129,0.1)", border: "1.5px solid rgba(16,185,129,0.25)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: 10, color: "#059669", fontWeight: 900,
+              }}>
+                ✓
+              </span>
+              <span style={{ fontSize: 13, color: "#374151", flex: 1, lineHeight: 1.5 }}>
+                <strong style={{ color: "#059669", fontWeight: 700 }}>Fixed: </strong>
+                {issue}
+              </span>
             </div>
           ))}
         </div>
@@ -493,9 +482,8 @@ export default function PreAnalysisScreen({
           <p style={{ fontSize: 14, fontWeight: 700, color: "#111827", marginBottom: 4 }}>
             Skills Match Breakdown
           </p>
-          <p style={{ fontSize: 12, color: "#6b7280", marginBottom: 16, lineHeight: 1.6 }}>
-            Keywords from the job description compared against your resume.
-            Missing skills will be added contextually — click any to tell us more.
+          <p style={{ fontSize: 12, color: "#6b7280", marginBottom: 16 }}>
+            Your coverage of this role&rsquo;s requirements — click any gap to share your experience.
           </p>
 
           {/* Matched skills */}
