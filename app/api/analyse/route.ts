@@ -122,6 +122,29 @@ function extractKeywords(text: string): string[] {
   return [...knownFound, ...otherFound].slice(0, 45);
 }
 
+// Word-boundary aware skill check.
+// Prevents false positives like "go" matching "google", "r" matching "requirements".
+// Skills with regex metacharacters (C++, .NET, node.js) fall back to plain includes.
+function skillPresentInText(skill: string, resumeLower: string): boolean {
+  const s = skill.toLowerCase();
+
+  // Skills containing regex special chars — plain substring is safe enough
+  // (they're distinctive: "c++", "c#", "node.js", "asp.net", "a/b testing")
+  if (/[.*+?^${}()|[\]\\]/.test(s)) {
+    return resumeLower.includes(s);
+  }
+
+  // Word-boundary match: skill must not be immediately preceded/followed by a-z or 0-9.
+  // This handles: multi-word ("machine learning"), hyphenated ("cross-functional"),
+  // short ambiguous terms ("go", "r", "sql"), and regular words alike.
+  try {
+    return new RegExp(`(?<![a-z0-9])${s}(?![a-z0-9])`).test(resumeLower);
+  } catch {
+    // Fallback if regex construction fails (shouldn't happen after the metachar check)
+    return resumeLower.includes(s);
+  }
+}
+
 function scoreResume(resumeText: string, keywords: string[]): {
   matched: string[];
   missing: string[];
@@ -132,7 +155,7 @@ function scoreResume(resumeText: string, keywords: string[]): {
   const missing: string[] = [];
 
   for (const kw of keywords) {
-    if (lower.includes(kw)) {
+    if (skillPresentInText(kw, lower)) {
       matched.push(kw);
     } else {
       missing.push(kw);

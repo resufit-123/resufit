@@ -165,17 +165,25 @@ function GooglePayButton({ onClick }: { onClick: () => void }) {
   );
 }
 
-// ── Skill context teaser modal ─────────────────────────────
+// ── Skill context modal ────────────────────────────────────
 
 function ContextModal({
   skillName,
+  savedContext,
+  currencySymbol,
   onClose,
+  onSave,
   onUnlock,
 }: {
   skillName: string;
+  savedContext: string;
+  currencySymbol: string;
   onClose: () => void;
-  onUnlock: () => void;
+  onSave: (context: string) => void;
+  onUnlock: (context: string) => void;
 }) {
+  const [context, setContext] = useState(savedContext);
+
   return (
     <div
       style={{
@@ -196,7 +204,7 @@ function ContextModal({
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
           <div>
             <p style={{ fontSize: 11, color: "#9ca3af", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4 }}>
-              Missing skill
+              Missing from your resume
             </p>
             <h3 style={{ fontSize: 18, fontWeight: 800, color: "#111827", letterSpacing: "-0.02em" }}>
               {skillName}
@@ -207,11 +215,13 @@ function ContextModal({
           </button>
         </div>
 
-        <p style={{ fontSize: 13, color: "#4b5563", lineHeight: 1.6, marginBottom: 16 }}>
-          Tell us about your experience with <strong>{skillName}</strong> and we&rsquo;ll weave it naturally into your rewritten resume — even if it&rsquo;s not in your current draft.
+        <p style={{ fontSize: 13, color: "#4b5563", lineHeight: 1.6, marginBottom: 12 }}>
+          Tell us about your experience with <strong>{skillName}</strong> and we&rsquo;ll weave it naturally into your rewritten resume.
         </p>
 
         <textarea
+          value={context}
+          onChange={(e) => setContext(e.target.value)}
           placeholder={`e.g. "I've used ${skillName} in three projects, including a migration for 50k users…"`}
           style={{
             width: "100%", boxSizing: "border-box",
@@ -219,23 +229,26 @@ function ContextModal({
             padding: "10px 14px", fontSize: 13, lineHeight: 1.6,
             color: "#111827", resize: "none", outline: "none",
             background: "#f9fafb", fontFamily: "inherit",
-            marginBottom: 16,
+            marginBottom: 12,
           }}
-          disabled
+          autoFocus
         />
 
-        <div style={{
-          background: "rgba(99,102,241,0.05)", border: "1px solid rgba(99,102,241,0.15)",
-          borderRadius: 10, padding: "10px 14px", marginBottom: 16, display: "flex", gap: 8, alignItems: "center",
-        }}>
-          <span style={{ fontSize: 16 }}>🔒</span>
-          <p style={{ fontSize: 12, color: "#6b7280", lineHeight: 1.5 }}>
-            Your context is saved and applied during optimization — unlock to use it.
-          </p>
-        </div>
+        {/* Save for later — lets users fill in multiple skills before paying */}
+        <button
+          onClick={() => onSave(context)}
+          style={{
+            width: "100%", padding: "10px 20px", marginBottom: 10,
+            background: "#f9fafb", color: "#374151",
+            border: "1.5px solid #e5e7eb", borderRadius: 10,
+            fontSize: 13, fontWeight: 600, cursor: "pointer",
+          }}
+        >
+          Save for now — add more skills first
+        </button>
 
         <button
-          onClick={onUnlock}
+          onClick={() => onUnlock(context)}
           style={{
             width: "100%", padding: "14px 20px",
             background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
@@ -244,7 +257,7 @@ function ContextModal({
             boxShadow: "0 4px 16px rgba(99,102,241,0.3)",
           }}
         >
-          Save context & unlock for $5 →
+          Save context & unlock for {currencySymbol}5 →
         </button>
       </div>
     </div>
@@ -263,6 +276,7 @@ export default function PreAnalysisScreen({
   onPurchase,
 }: PreAnalysisScreenProps) {
   const [contextSkill, setContextSkill] = useState<string | null>(null);
+  const [skillContexts, setSkillContexts] = useState<Record<string, string>>({});
   const [currencySymbol, setCurrencySymbol] = useState("$");
 
   useEffect(() => {
@@ -295,8 +309,15 @@ export default function PreAnalysisScreen({
       {contextSkill && (
         <ContextModal
           skillName={contextSkill}
+          savedContext={skillContexts[contextSkill] ?? ""}
+          currencySymbol={currencySymbol}
           onClose={() => setContextSkill(null)}
-          onUnlock={() => {
+          onSave={(ctx) => {
+            setSkillContexts((prev) => ({ ...prev, [contextSkill]: ctx }));
+            setContextSkill(null);
+          }}
+          onUnlock={(ctx) => {
+            setSkillContexts((prev) => ({ ...prev, [contextSkill]: ctx }));
             setContextSkill(null);
             onPurchase("one_time");
           }}
@@ -414,6 +435,77 @@ export default function PreAnalysisScreen({
           </span>
         </div>
 
+        {/* ── Skills Breakdown ── */}
+        <div style={{
+          background: "#ffffff", border: "1px solid #e5e7eb",
+          borderRadius: 16, padding: 24, marginBottom: 24,
+          boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
+        }}>
+          <p style={{ fontSize: 14, fontWeight: 700, color: "#111827", marginBottom: 4 }}>
+            Skills Match Breakdown
+          </p>
+          <p style={{ fontSize: 12, color: "#6b7280", marginBottom: 16 }}>
+            Skills the job description asks for — click any missing one to add your experience.
+          </p>
+
+          {/* Matched skills */}
+          {matchedSkills.length > 0 && (
+            <div style={{ marginBottom: 12 }}>
+              <p style={{ fontSize: 10, color: "#059669", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>
+                ✓ Already in your resume
+              </p>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                {matchedSkills.map((skill, i) => (
+                  <span key={i} style={{
+                    padding: "5px 11px", borderRadius: 7, fontSize: 12, fontWeight: 600,
+                    background: "rgba(16,185,129,0.07)", color: "#059669",
+                    border: "1px solid rgba(16,185,129,0.18)",
+                  }}>
+                    {skill.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Missing skills — click to add context */}
+          {missingSkills.length > 0 && (
+            <div>
+              <p style={{ fontSize: 10, color: "#6366f1", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>
+                + Missing — will be added by ResuFit
+              </p>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                {missingSkills.map((skill, i) => {
+                  const hasSavedContext = Boolean(skillContexts[skill.name]);
+                  return (
+                    <button
+                      key={i}
+                      onClick={() => setContextSkill(skill.name)}
+                      title={hasSavedContext ? `Context saved for ${skill.name}` : `Tell us about your ${skill.name} experience`}
+                      style={{
+                        padding: "5px 11px", borderRadius: 7, fontSize: 12, fontWeight: 600,
+                        background: hasSavedContext ? "rgba(16,185,129,0.07)" : "rgba(99,102,241,0.07)",
+                        color: hasSavedContext ? "#059669" : "#6366f1",
+                        border: `1px solid ${hasSavedContext ? "rgba(16,185,129,0.25)" : "rgba(99,102,241,0.2)"}`,
+                        cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 5,
+                      }}
+                    >
+                      {hasSavedContext ? <span style={{ fontSize: 10 }}>✓</span> : null}
+                      {skill.name}
+                      {!hasSavedContext && <span style={{ fontSize: 10, opacity: 0.6 }}>+ add context</span>}
+                    </button>
+                  );
+                })}
+              </div>
+              {Object.keys(skillContexts).length > 0 && (
+                <p style={{ fontSize: 11, color: "#059669", marginTop: 10, fontWeight: 500 }}>
+                  ✓ Context saved for {Object.keys(skillContexts).length} skill{Object.keys(skillContexts).length > 1 ? "s" : ""} — will be woven into your resume on unlock.
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+
         {/* ── Resume Preview ── */}
         <div style={{
           background: "#ffffff", border: "1px solid #e5e7eb",
@@ -471,67 +563,6 @@ export default function PreAnalysisScreen({
               </button>
             </div>
           </div>
-        </div>
-
-        {/* ── Skills Breakdown ── */}
-        <div style={{
-          background: "#ffffff", border: "1px solid #e5e7eb",
-          borderRadius: 16, padding: 24, marginBottom: 24,
-          boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
-        }}>
-          <p style={{ fontSize: 14, fontWeight: 700, color: "#111827", marginBottom: 4 }}>
-            Skills Match Breakdown
-          </p>
-          <p style={{ fontSize: 12, color: "#6b7280", marginBottom: 16 }}>
-            Your coverage of this role&rsquo;s requirements — click any gap to share your experience.
-          </p>
-
-          {/* Matched skills */}
-          {matchedSkills.length > 0 && (
-            <div style={{ marginBottom: 12 }}>
-              <p style={{ fontSize: 10, color: "#059669", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>
-                ✓ Already in your resume
-              </p>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                {matchedSkills.map((skill, i) => (
-                  <span key={i} style={{
-                    padding: "5px 11px", borderRadius: 7, fontSize: 12, fontWeight: 600,
-                    background: "rgba(16,185,129,0.07)", color: "#059669",
-                    border: "1px solid rgba(16,185,129,0.18)",
-                  }}>
-                    {skill.name}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Missing skills with context teasers */}
-          {missingSkills.length > 0 && (
-            <div>
-              <p style={{ fontSize: 10, color: "#6366f1", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>
-                + Will be added by ResuFit
-              </p>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                {missingSkills.map((skill, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setContextSkill(skill.name)}
-                    title={`Tell us about your ${skill.name} experience`}
-                    style={{
-                      padding: "5px 11px", borderRadius: 7, fontSize: 12, fontWeight: 600,
-                      background: "rgba(99,102,241,0.07)", color: "#6366f1",
-                      border: "1px solid rgba(99,102,241,0.2)",
-                      cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 5,
-                    }}
-                  >
-                    {skill.name}
-                    <span style={{ fontSize: 10, opacity: 0.7 }}>+ tell us more</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
 
         {/* ── ATS Compatibility ── */}
