@@ -30,45 +30,99 @@ const STOP_WORDS = new Set([
 // experience and will add the skill to the rewritten resume automatically.
 const SKILL_CLUSTERS: string[][] = [
   // Frontend frameworks
-  ["react", "next.js", "vue", "angular", "svelte", "storybook"],
+  ["react", "next.js", "vue", "angular", "svelte", "gatsby", "remix", "nuxt", "storybook"],
   // CSS / styling
-  ["tailwind", "css", "css3", "sass", "less", "bootstrap", "styled-components"],
+  ["tailwind", "css", "css3", "sass", "less", "bootstrap"],
   // Backend frameworks
-  ["node.js", "express", "nestjs", "fastify", "django", "flask", "fastapi", "rails", "spring", "laravel"],
+  ["node.js", "express", "nestjs", "fastify", "django", "flask", "fastapi", "rails", "spring", "laravel", "phoenix"],
   // Languages — scripting / web
   ["python", "javascript", "typescript", "ruby", "php"],
   // Languages — systems / mobile
   ["java", "kotlin", "swift", "go", "rust", "c++", "c#", "scala", "dart"],
+  // Data / stats languages
+  ["python", "r", "matlab", "sas", "stata", "spss", "julia"],
   // Cloud platforms
-  ["aws", "azure", "gcp", "heroku", "vercel", "netlify", "cloudflare"],
+  ["aws", "azure", "gcp", "heroku", "vercel", "netlify", "cloudflare", "digital ocean", "ibm cloud"],
   // SQL databases
-  ["postgresql", "mysql", "sqlite", "sql server", "oracle", "redshift", "bigquery", "sql"],
+  ["postgresql", "mysql", "sqlite", "microsoft sql server", "oracle", "redshift", "bigquery", "sql", "aurora", "mariadb"],
   // NoSQL databases
-  ["mongodb", "redis", "dynamodb", "cassandra", "firebase", "elasticsearch"],
+  ["mongodb", "redis", "dynamodb", "cassandra", "firebase", "elasticsearch", "cosmos db", "clickhouse"],
   // ML / AI frameworks
-  ["tensorflow", "pytorch", "keras", "scikit-learn"],
-  // Data engineering tools
+  ["tensorflow", "pytorch", "keras", "scikit-learn", "xgboost", "lightgbm", "hugging face"],
+  // Data engineering
   ["pandas", "numpy", "spark", "hadoop", "airflow", "dbt", "databricks", "snowflake"],
-  // Containerisation / orchestration
-  ["docker", "kubernetes"],
-  // Infrastructure as code
+  // ML concepts (knowing one implies the discipline)
+  ["machine learning", "deep learning", "nlp", "natural language processing", "computer vision", "data science", "statistical modelling", "statistical modeling"],
+  // Containers / orchestration
+  ["docker", "kubernetes", "helm"],
+  // IaC
   ["terraform", "ansible"],
   // CI/CD
-  ["github actions", "jenkins", "circleci", "ci/cd", "devops"],
+  ["github actions", "jenkins", "circleci", "gitlab ci", "ci/cd", "devops"],
   // Observability
-  ["prometheus", "grafana", "datadog"],
+  ["prometheus", "grafana", "datadog", "splunk", "new relic"],
   // Design tools
-  ["figma", "sketch", "adobe xd", "invision", "zeplin"],
-  // Project management
-  ["jira", "linear", "asana", "trello", "notion", "confluence"],
+  ["figma", "sketch", "adobe xd", "invision", "zeplin", "framer", "canva"],
+  // Project management tools
+  ["jira", "linear", "asana", "trello", "notion", "confluence", "monday.com", "smartsheet", "clickup", "wrike"],
   // Analytics / BI
-  ["google analytics", "mixpanel", "segment", "tableau", "powerbi", "looker", "looker studio"],
-  // CRM / Marketing automation
-  ["salesforce", "hubspot", "marketo"],
-  // Agile / delivery methodologies
-  ["agile", "scrum", "kanban", "sprint"],
-  // Leadership adjacent
-  ["leadership", "mentoring", "stakeholder management", "stakeholder", "cross-functional"],
+  ["google analytics", "mixpanel", "segment", "amplitude", "heap", "tableau", "powerbi", "looker", "looker studio", "adobe analytics", "qlik", "metabase", "sisense"],
+  // Marketing automation / email
+  ["salesforce marketing cloud", "hubspot", "marketo", "pardot", "eloqua", "braze", "klaviyo", "mailchimp", "activecampaign"],
+  // CRM
+  ["salesforce", "hubspot", "microsoft dynamics", "dynamics 365", "zoho crm", "pipedrive"],
+  // SEO / digital marketing
+  ["seo", "sem", "ppc", "google ads", "semrush", "ahrefs", "moz"],
+  // Social media management
+  ["hootsuite", "sprout social", "buffer", "social media management"],
+  // Agile / delivery
+  ["agile", "scrum", "kanban", "sprint", "safe", "lean"],
+  // Project / programme management qualifications
+  ["prince2", "pmp", "pmi", "msp"],
+  // ERP platforms
+  ["sap", "oracle erp", "microsoft dynamics", "netsuite", "sage", "epicor"],
+  // HRMS platforms
+  ["workday", "bamboohr", "adp", "ceridian", "ukg", "successfactors", "peoplesoft"],
+  // ATS / recruiting tools
+  ["greenhouse", "lever", "workable", "taleo", "icims", "smart recruiters"],
+  // Finance software
+  ["bloomberg", "bloomberg terminal", "refinitiv", "factset", "capital iq", "pitchbook"],
+  // Finance modelling
+  ["financial modelling", "financial modeling", "dcf", "discounted cash flow", "lbo", "valuation", "financial analysis"],
+  // Accounting standards (knowing one implies familiarity with the other)
+  ["ifrs", "gaap", "us gaap", "uk gaap"],
+  // Finance qualifications
+  ["cfa", "cpa", "acca", "aca", "cima", "caia", "frm", "ca"],
+  // Risk types
+  ["credit risk", "market risk", "operational risk", "liquidity risk", "risk management"],
+  // Finance domains (knowing one implies general finance exposure)
+  ["investment banking", "corporate finance", "private equity", "equity research", "asset management", "fund accounting"],
+  // FX / treasury
+  ["treasury", "cash management", "foreign exchange", "fx", "hedging", "derivatives", "options", "futures"],
+  // Accounting platforms
+  ["quickbooks", "xero", "sage intacct", "netsuite"],
+  // HR disciplines
+  ["talent acquisition", "recruiting", "headhunting", "executive search"],
+  ["performance management", "talent management", "succession planning", "people management"],
+  ["compensation", "benefits", "total rewards", "salary benchmarking"],
+  // L&D
+  ["learning and development", "l&d", "instructional design"],
+  // Supply chain
+  ["supply chain management", "logistics", "procurement", "sourcing", "vendor management", "supplier management"],
+  // Quality
+  ["lean", "six sigma", "kaizen", "continuous improvement", "process improvement", "iso 9001"],
+  // Ticketing / customer support tools
+  ["zendesk", "intercom", "freshdesk", "freshservice", "servicenow"],
+  // Security
+  ["cyber security", "information security", "iso 27001", "nist", "soc 2", "pci dss"],
+  // Cloud productivity
+  ["microsoft 365", "google workspace", "sharepoint", "slack", "microsoft teams"],
+  // Legal research
+  ["westlaw", "lexisnexis"],
+  // Leadership / management
+  ["leadership", "people management", "line management", "mentoring", "coaching"],
+  // Stakeholder / commercial
+  ["stakeholder management", "client management", "account management", "key account management", "business development"],
 ];
 
 // Returns true if the resume contains any skill in the same cluster as `skill`,
@@ -86,102 +140,207 @@ function canInferSkill(skill: string, resumeSkillsLower: Set<string>): boolean {
   return false;
 }
 
-// Known tech/professional skills to specifically look for
+// Comprehensive skills taxonomy — covers tech, finance, marketing, HR, legal,
+// operations, healthcare, and more. ~500 entries so the section works for any job.
 const KNOWN_SKILLS = [
-  // Languages
+  // ── Languages ──────────────────────────────────────────────────
   "python","javascript","typescript","java","c++","c#","ruby","go","rust","swift",
   "kotlin","php","r","scala","perl","matlab","sql","html","css","bash","shell",
-  "vba","groovy","objective-c","dart","lua","elixir","clojure","haskell",
-  // Frontend
+  "vba","groovy","objective-c","dart","lua","elixir","clojure","haskell","cobol",
+  "fortran","sas","stata","spss","julia","f#","erlang","zig",
+  // ── Web Frontend ───────────────────────────────────────────────
   "react","next.js","vue","angular","svelte","tailwind","bootstrap","webpack",
-  "vite","redux","graphql","html5","css3","sass","less","storybook",
-  // Backend / infra
+  "vite","redux","graphql","html5","css3","sass","less","storybook","gatsby",
+  "remix","nuxt","astro","jquery","d3","three.js","web components","pwa","wcag",
+  "responsive design","accessibility",
+  // ── Backend / Frameworks ───────────────────────────────────────
   "node.js","express","django","flask","spring","rails","laravel","fastapi",
-  "nestjs","fastify","gin","echo","fiber","dotnet",".net","asp.net",
-  // Data & ML
+  "nestjs","fastify","gin","dotnet",".net","asp.net","phoenix","sinatra","grails",
+  // ── Mobile ─────────────────────────────────────────────────────
+  "react native","flutter","ios","android","xamarin","ionic","expo",
+  "swiftui","jetpack compose",
+  // ── Data & ML ──────────────────────────────────────────────────
   "tensorflow","pytorch","keras","scikit-learn","pandas","numpy","spark","hadoop",
   "airflow","dbt","snowflake","bigquery","redshift","databricks","looker",
-  "machine learning","deep learning","nlp","computer vision","llm","genai",
-  "data science","data analysis","data engineering","data modelling","sql server",
-  // DevOps / Cloud
+  "machine learning","deep learning","nlp","natural language processing",
+  "computer vision","llm","generative ai","genai","data science","data analysis",
+  "data engineering","data modelling","data modeling","sql server","mlops",
+  "feature engineering","time series","xgboost","lightgbm","hugging face",
+  "langchain","embeddings","vector databases","rag","transformers","jupyter",
+  "plotly","seaborn","matplotlib","ggplot","r shiny","statistical modelling",
+  "statistical modeling","regression","classification","clustering",
+  // ── DevOps / Cloud ─────────────────────────────────────────────
   "docker","kubernetes","terraform","ansible","jenkins","github actions","circleci",
   "aws","azure","gcp","heroku","vercel","netlify","cloudflare","linux","nginx",
   "ci/cd","devops","sre","observability","prometheus","grafana","datadog",
-  // Databases
+  "splunk","new relic","elk stack","pagerduty","helm","argocd","gitlab ci",
+  "digital ocean","ibm cloud","oracle cloud",
+  // ── Databases ──────────────────────────────────────────────────
   "postgresql","mysql","mongodb","redis","elasticsearch","dynamodb","firebase",
-  "cassandra","neo4j","sqlite","oracle","supabase",
-  // Product / Design
+  "cassandra","neo4j","sqlite","oracle","supabase","clickhouse","cosmos db",
+  "aurora","mariadb","microsoft sql server","pinecone","weaviate",
+  // ── Product / Design ───────────────────────────────────────────
   "figma","sketch","adobe xd","invision","zeplin","miro","notion","linear",
   "jira","confluence","trello","asana","product management","roadmap","backlog",
-  "ux","ui","user research","wireframing","prototyping","a/b testing","analytics",
-  // Marketing / Business
-  "salesforce","hubspot","marketo","google analytics","mixpanel","segment",
-  "seo","sem","ppc","crm","erp","saas","b2b","b2c","p&l","kpi","okr",
-  "tableau","powerbi","excel","google sheets","looker studio",
-  // Methodologies
-  "agile","scrum","kanban","lean","six sigma","sprint","stakeholder management",
-  "cross-functional","strategic planning","change management","risk management",
-  // Finance / Legal / HR
-  "financial modelling","forecasting","budgeting","ifrs","gaap","sox","gdpr",
-  "compliance","auditing","underwriting","actuarial","payroll","recruiting",
-  // Soft skills
-  "leadership","communication","collaboration","problem-solving","analytical",
-  "strategic","detail-oriented","self-starter","mentoring","negotiation",
-  "presentation","stakeholder","critical thinking",
+  "ux","ui","user research","wireframing","prototyping","usability testing",
+  "information architecture","interaction design","service design","design systems",
+  "product strategy","go-to-market","product analytics","okr","kpi",
+  "canva","adobe illustrator","adobe photoshop","adobe indesign","adobe creative suite",
+  "framer","maze","hotjar","fullstory","pendo","optimizely","vwo",
+  // ── Analytics & BI ─────────────────────────────────────────────
+  "tableau","powerbi","looker studio","google analytics","mixpanel","segment",
+  "amplitude","heap","google tag manager","adobe analytics","qlik","metabase",
+  "excel","google sheets","power query","power pivot","dax","sisense","mode",
+  "superset","retool","a/b testing","conversion rate optimisation","cro",
+  // ── CRM / Marketing Tech ───────────────────────────────────────
+  "salesforce","hubspot","marketo","pardot","eloqua","braze","iterable",
+  "klaviyo","mailchimp","activecampaign","sendgrid","salesforce marketing cloud",
+  "google ads","facebook ads","meta ads","linkedin ads","tiktok ads","programmatic",
+  "hootsuite","sprout social","buffer","social media management",
+  "content marketing","email marketing","affiliate marketing","influencer marketing",
+  "demand generation","lead generation","account-based marketing","abm",
+  "copywriting","brand management","campaign management","media buying",
+  "semrush","ahrefs","moz","screaming frog","google search console",
+  "seo","sem","ppc","crm","saas","b2b","b2c","p&l","ecommerce",
+  // ── ERP / Business Software ────────────────────────────────────
+  "sap","sap s/4hana","oracle erp","microsoft dynamics","dynamics 365",
+  "netsuite","sage","epicor","infor","workday","peoplesoft","successfactors",
+  "bamboohr","adp","ceridian","ukg","kronos","servicenow","freshdesk",
+  "zendesk","intercom","freshservice","monday.com","smartsheet","ms project",
+  "wrike","clickup","airtable","sharepoint","microsoft 365","google workspace",
+  "slack","microsoft teams","zoom","quickbooks","xero","sage intacct","coupa","ariba",
+  // ── Finance & Accounting ───────────────────────────────────────
+  "financial modelling","financial modeling","financial analysis","financial reporting",
+  "valuation","dcf","discounted cash flow","lbo","m&a","mergers and acquisitions",
+  "due diligence","equity research","credit analysis","investment banking",
+  "corporate finance","private equity","venture capital","fixed income",
+  "derivatives","portfolio management","asset management","fund accounting",
+  "credit risk","market risk","operational risk","liquidity risk",
+  "ifrs","gaap","us gaap","uk gaap","sox","sarbanes-oxley","internal audit",
+  "external audit","fp&a","financial planning","budgeting","forecasting",
+  "treasury","cash management","foreign exchange","fx","hedging","options","futures",
+  "bloomberg","bloomberg terminal","refinitiv","factset","capital iq","pitchbook",
+  "actuarial","underwriting","insurance","reinsurance",
+  "vat","transfer pricing","corporate tax","tax compliance",
+  "cfa","cpa","acca","aca","cima","caia","frm","cfp","ca",
+  "management accounts","profit and loss","balance sheet","cash flow","erp",
+  // ── HR & People ────────────────────────────────────────────────
+  "talent acquisition","recruiting","headhunting","executive search",
+  "onboarding","performance management","talent management","succession planning",
+  "compensation","benefits","total rewards","salary benchmarking","job evaluation",
+  "employment law","hr compliance","tupe","hris","people analytics",
+  "workforce planning","learning and development","l&d","instructional design",
+  "diversity and inclusion","dei","organizational development","change management",
+  "employee relations","industrial relations","cipd","shrm","hrbp",
+  "greenhouse","lever","workable","taleo","icims","smart recruiters",
+  "payroll","recruiting","talent development","performance reviews","okrs",
+  // ── Legal ──────────────────────────────────────────────────────
+  "contract drafting","contract negotiation","legal research","legal writing",
+  "corporate law","employment law","intellectual property","data protection",
+  "gdpr","ccpa","privacy law","regulatory affairs","compliance","litigation",
+  "arbitration","mediation","commercial law","competition law","corporate governance",
+  "westlaw","lexisnexis","relativity","docusign","clm",
+  // ── Operations & Supply Chain ──────────────────────────────────
+  "supply chain management","logistics","procurement","sourcing",
+  "category management","vendor management","supplier management","contract management",
+  "lean","six sigma","kaizen","5s","continuous improvement","process improvement",
+  "operations management","quality assurance","quality control","iso 9001","iso 27001",
+  "demand planning","inventory management","warehouse management","wms",
+  "3pl","fleet management","customs","import export","facilities management",
+  "health and safety","hse","risk management",
+  // ── Project / Programme Management ────────────────────────────
+  "project management","programme management","portfolio management",
+  "prince2","pmp","pmi","msp","agile","scrum","kanban","lean","safe","sprint",
+  "stakeholder management","change management","risk management","governance",
+  "waterfall","cross-functional","strategic planning","resource planning",
+  // ── Healthcare ─────────────────────────────────────────────────
+  "epic","cerner","meditech","allscripts","eclinicalworks",
+  "hl7","fhir","clinical informatics","clinical trials","gcp","gmp",
+  "medical writing","icd-10","medical billing","nursing","pharmacy",
+  // ── Security & Compliance ──────────────────────────────────────
+  "cyber security","information security","penetration testing","soc 2","iso 27001",
+  "pci dss","nist","owasp","vulnerability management","iam","siem","zero trust",
+  // ── Soft / Leadership (specific, testable) ─────────────────────
+  "leadership","people management","line management","mentoring","coaching",
+  "executive presentations","board reporting","key account management",
+  "client management","account management","business development","negotiation",
+  "commercial negotiation","proposal writing","bid writing","analytical",
+  "problem-solving","stakeholder","communication","collaboration","critical thinking",
 ];
+
+// Clean a phrase extracted from a JD trigger pattern — trim filler, cap length.
+function cleanTriggerPhrase(raw: string): string {
+  return raw
+    .trim()
+    .replace(/\s+(and|or|in|a|an|the|to|with|for|of|as|such|including|like|eg|e\.g|etc)\.?$/i, "")
+    .replace(/[,;.()\[\]]+$/, "")
+    .trim()
+    .slice(0, 45);
+}
 
 function extractKeywords(text: string): string[] {
   const lower = text.toLowerCase();
   const found: Set<string> = new Set();
 
-  // Priority 1: scan for every known skill/tool (multi-word aware, case-insensitive)
+  // ── Pass 1: KNOWN_SKILLS scan ─────────────────────────────────
+  // Multi-word aware, case-insensitive. Highest precision.
   for (const skill of KNOWN_SKILLS) {
     if (lower.includes(skill.toLowerCase())) found.add(skill);
   }
 
-  // Priority 2: extract ONLY high-signal terms from the original text —
-  // proper nouns, acronyms, and branded/tech names. We deliberately avoid
-  // pulling generic English words (even 5+ chars) to prevent noise like
-  // "client", "strong", "highly", "please", "ensure" appearing as skills.
-  const tokens = text.split(/[\s,;:()\[\]{}"'\n\r/\\]+/);
-  for (const token of tokens) {
-    const clean = token.replace(/^[^a-zA-Z0-9]+|[^a-zA-Z0-9+#.-]+$/g, "");
-    if (clean.length < 2) continue;
-    const lc = clean.toLowerCase();
-    if (STOP_WORDS.has(lc)) continue;
-    if (/^\d+$/.test(clean)) continue;
-
-    // All-caps acronym (2–6 uppercase chars, optional digits): SQL, AWS, CRM, REST, GDPR
-    if (/^[A-Z][A-Z0-9]{1,5}$/.test(clean)) {
-      found.add(clean);
-      continue;
-    }
-    // CamelCase / mixed-case branded term: HubSpot, GitHub, LinkedIn, PowerBI, DevOps
-    if (/^[A-Z][a-z]{2,}[A-Z][a-zA-Z0-9]*$/.test(clean) && clean.length >= 5) {
-      found.add(clean);
-      continue;
-    }
-    // Special-syntax technologies: C++, C#  (symbols make them clearly technical)
-    if (/[+#]/.test(clean) && /[a-zA-Z]/.test(clean) && clean.length >= 2) {
-      found.add(clean);
-      continue;
-    }
-    // Hyphenated compound professional terms: full-stack, cross-functional, data-driven
-    if (/^[a-z]{3,}-[a-z]{3,}$/.test(clean) && !STOP_WORDS.has(lc)) {
-      found.add(clean);
-      continue;
+  // ── Pass 2: Trigger-phrase extraction ─────────────────────────
+  // JDs telegraph skills with predictable lead-ins. Extract what follows.
+  const TRIGGER = [
+    /\bexperience (?:with|in|using|of)\s+([\w][\w\s\-+#./]{1,40}?)(?=\s*[,;.\n]|\s+and\b|\s+or\b|$)/gi,
+    /\bknowledge of\s+([\w][\w\s\-+#./]{1,40}?)(?=\s*[,;.\n]|\s+and\b|\s+or\b|$)/gi,
+    /\bproficien(?:t|cy) (?:in|with)\s+([\w][\w\s\-+#./]{1,40}?)(?=\s*[,;.\n]|\s+and\b|\s+or\b|$)/gi,
+    /\bfamiliar(?:ity)? with\s+([\w][\w\s\-+#./]{1,40}?)(?=\s*[,;.\n]|\s+and\b|\s+or\b|$)/gi,
+    /\bskilled in\s+([\w][\w\s\-+#./]{1,40}?)(?=\s*[,;.\n]|\s+and\b|\s+or\b|$)/gi,
+    /\bexpertise in\s+([\w][\w\s\-+#./]{1,40}?)(?=\s*[,;.\n]|\s+and\b|\s+or\b|$)/gi,
+    /\bworking knowledge of\s+([\w][\w\s\-+#./]{1,40}?)(?=\s*[,;.\n]|\s+and\b|\s+or\b|$)/gi,
+    /\bexposure to\s+([\w][\w\s\-+#./]{1,40}?)(?=\s*[,;.\n]|\s+and\b|\s+or\b|$)/gi,
+    /\bhands[-\s]on (?:experience )?(?:with|in)\s+([\w][\w\s\-+#./]{1,40}?)(?=\s*[,;.\n]|\s+and\b|\s+or\b|$)/gi,
+    /\bability to use\s+([\w][\w\s\-+#./]{1,40}?)(?=\s*[,;.\n]|\s+and\b|\s+or\b|$)/gi,
+  ];
+  for (const pattern of TRIGGER) {
+    for (const m of Array.from(text.matchAll(pattern))) {
+      const phrase = cleanTriggerPhrase(m[1]);
+      if (phrase.length >= 2 && !STOP_WORDS.has(phrase.toLowerCase())) {
+        found.add(phrase.charAt(0).toUpperCase() + phrase.slice(1));
+      }
     }
   }
 
-  // Return known curated skills first (highest quality), then inferred terms
-  const knownFound = Array.from(found).filter((k) =>
+  // ── Pass 3: Parenthetical tool lists ──────────────────────────
+  // JDs often list specific tools in parentheses: "tools (Jira, Notion, Figma)"
+  for (const m of Array.from(text.matchAll(/\(([A-Z][A-Za-z0-9,.\s/\-+#]{2,80})\)/g))) {
+    const items = m[1].split(/[,/]/).map((s: string) => s.trim()).filter((s: string) => s.length >= 2);
+    for (const item of items) {
+      if (!STOP_WORDS.has(item.toLowerCase()) && !/^\d/.test(item)) {
+        found.add(item);
+      }
+    }
+  }
+
+  // ── Pass 4: High-signal structural tokens ─────────────────────
+  // All-caps acronyms, CamelCase brands, C++/C# syntax — as before.
+  for (const token of text.split(/[\s,;:()\[\]{}"'\n\r/\\]+/)) {
+    const clean = token.replace(/^[^a-zA-Z0-9]+|[^a-zA-Z0-9+#.-]+$/g, "");
+    if (clean.length < 2 || STOP_WORDS.has(clean.toLowerCase()) || /^\d+$/.test(clean)) continue;
+    if (/^[A-Z][A-Z0-9]{1,5}$/.test(clean)) { found.add(clean); continue; }
+    if (/^[A-Z][a-z]{2,}[A-Z][a-zA-Z0-9]*$/.test(clean) && clean.length >= 5) { found.add(clean); continue; }
+    if (/[+#]/.test(clean) && /[a-zA-Z]/.test(clean) && clean.length >= 2) { found.add(clean); continue; }
+  }
+
+  // Return KNOWN_SKILLS hits first (highest confidence), then trigger/structural terms
+  const known = Array.from(found).filter((k) =>
     KNOWN_SKILLS.some((s) => s.toLowerCase() === k.toLowerCase())
   );
-  const otherFound = Array.from(found).filter(
+  const other = Array.from(found).filter(
     (k) => !KNOWN_SKILLS.some((s) => s.toLowerCase() === k.toLowerCase())
   );
 
-  return [...knownFound, ...otherFound].slice(0, 45);
+  return [...known, ...other].slice(0, 50);
 }
 
 // Word-boundary aware skill check.

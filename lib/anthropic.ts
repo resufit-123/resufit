@@ -8,6 +8,62 @@ export const anthropic = new Anthropic({
 const MODEL = "claude-haiku-4-5-20251001";
 const MAX_OUTPUT_TOKENS = 4096;
 
+// ── AI-powered skill extraction & matching ───────────────────
+// Replaces the brittle keyword list approach. Claude reads both
+// the JD and resume and returns a classified skill list in one pass.
+// ~0.1 cent per call at Haiku pricing, ~1–2s latency.
+
+export interface SkillMatch {
+  name: string;
+  status: "matched" | "inferred" | "unknown";
+}
+
+export async function extractAndMatchSkills(
+  jobDescription: string,
+  resumeText: string
+): Promise<SkillMatch[]> {
+  // Truncate to keep cost/latency tight while preserving signal
+  const jd = jobDescription.slice(0, 4000);
+  const resume = resumeText.slice(0, 6000);
+
+  const prompt = `You are analyzing a resume against a job description.
+
+Extract the 15–20 most important skills, tools, technologies, and domain-specific competencies the job requires. Skip vague phrases like "team player", "good communicator", or "strong work ethic" — focus on concrete, specific, testable skills.
+
+For each extracted skill, classify it as one of:
+- "matched": explicitly present in the resume (verbatim or near-verbatim)
+- "inferred": not explicit but resume shows clearly related experience that transfers (e.g. Vue.js → React; Azure → AWS; MySQL → PostgreSQL; P&L management → financial modelling; managed a team → leadership)
+- "unknown": no evidence in the resume at all — the job wants this but we can't tell if the candidate has it
+
+Rules:
+- Use the exact skill name as it appears in the job description
+- Return 5–10 matched, 3–6 inferred, 3–6 unknown (adjust based on the actual resume fit)
+- Shorter skill names are better: "Python" not "Python programming language"
+
+Respond ONLY with valid JSON — no prose, no markdown fences:
+{"skills": [{"name": "Python", "status": "matched"}, ...]}
+
+<job_description>
+${jd}
+</job_description>
+
+<resume>
+${resume}
+</resume>`;
+
+  const response = await anthropic.messages.create({
+    model: MODEL,
+    max_tokens: 600,
+    messages: [{ role: "user", content: prompt }],
+  });
+
+  const text = response.content[0].type === "text" ? response.content[0].text : "{}";
+  const cleaned = text.replace(/^```(?:json)?\n?/i, "").replace(/\n?```$/i, "").trim();
+  const parsed = JSON.parse(cleaned) as { skills: SkillMatch[] };
+
+  return Array.isArray(parsed.skills) ? parsed.skills : [];
+}
+
 // ── System prompt loader ──────────────────────────────────────
 // Fetches the active system prompt from Supabase ai_prompts table.
 // Falls back to the inline prompt if DB fetch fails.
