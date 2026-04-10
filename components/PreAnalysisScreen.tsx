@@ -346,12 +346,12 @@ export default function PreAnalysisScreen({
           margin: "0 0 8px",
         }}>
           {firstName
-            ? <>🎉 {firstName}, your resume has been rebuilt 🎉</>
-            : <>🎉 Your resume has been rebuilt 🎉</>
+            ? <>🎉&nbsp;&nbsp;{firstName}, your resume has been rebuilt&nbsp;&nbsp;🎉</>
+            : <>🎉&nbsp;&nbsp;Your resume has been rebuilt&nbsp;&nbsp;🎉</>
           }
         </h1>
         <p style={{ fontSize: 14, color: "#6b7280", margin: 0 }}>
-          Rewritten for this role — here&rsquo;s what changed.
+          Here&rsquo;s exactly what the job needs — and what we&rsquo;ve done about it.
         </p>
       </div>
 
@@ -438,18 +438,61 @@ export default function PreAnalysisScreen({
           </span>
         </div>
 
-        {/* ── Skills Match Breakdown ── */}
+        {/* ── Skills Gap Analysis ── */}
         <div style={{
           background: "#ffffff", border: "1px solid #e5e7eb",
           borderRadius: 16, padding: 24, marginBottom: 24,
           boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
         }}>
-          <p style={{ fontSize: 14, fontWeight: 700, color: "#111827", marginBottom: 4 }}>
-            Skills Match Breakdown
-          </p>
-          <p style={{ fontSize: 12, color: "#6b7280", marginBottom: 18 }}>
-            Every skill the job description asks for, and where you stand.
-          </p>
+
+          {/* Header + coverage summary */}
+          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 16, gap: 12, flexWrap: "wrap" }}>
+            <div>
+              <p style={{ fontSize: 14, fontWeight: 700, color: "#111827", marginBottom: 3 }}>
+                Skills Gap Analysis
+              </p>
+              <p style={{ fontSize: 12, color: "#6b7280" }}>
+                Every skill this job needs — and how your resume covers it.
+              </p>
+            </div>
+            {/* Coverage pill */}
+            <div style={{
+              background: "linear-gradient(135deg, rgba(99,102,241,0.08), rgba(139,92,246,0.08))",
+              border: "1px solid rgba(99,102,241,0.2)", borderRadius: 10,
+              padding: "8px 14px", textAlign: "center", flexShrink: 0,
+            }}>
+              <p style={{ fontSize: 20, fontWeight: 900, color: "#6366f1", lineHeight: 1, marginBottom: 2 }}>
+                {matchedSkills.length + inferredSkills.length}
+                <span style={{ fontSize: 13, fontWeight: 600, color: "#9ca3af" }}>/{allSkills.length}</span>
+              </p>
+              <p style={{ fontSize: 10, color: "#6b7280", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                skills covered
+              </p>
+            </div>
+          </div>
+
+          {/* ── Purple FIRST: ResuFit added — the value prop ── */}
+          {inferredSkills.length > 0 && (
+            <div style={{ marginBottom: 16 }}>
+              <p style={{ fontSize: 10, fontWeight: 700, color: "#6366f1", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 8 }}>
+                ✦ Added by ResuFit — inferred from your experience
+              </p>
+              <p style={{ fontSize: 11, color: "#6b7280", marginBottom: 8 }}>
+                Your resume shows related experience — we&rsquo;ve added these for you.
+              </p>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                {inferredSkills.map((skill, i) => (
+                  <span key={i} style={{
+                    padding: "5px 12px", borderRadius: 7, fontSize: 12, fontWeight: 600,
+                    background: "rgba(99,102,241,0.07)", color: "#6366f1",
+                    border: "1px solid rgba(99,102,241,0.2)",
+                  }}>
+                    ✦ {skill.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* ── Green: already in resume ── */}
           {matchedSkills.length > 0 && (
@@ -471,31 +514,14 @@ export default function PreAnalysisScreen({
             </div>
           )}
 
-          {/* ── Purple: ResuFit can add from inferred experience ── */}
-          {inferredSkills.length > 0 && (
-            <div style={{ marginBottom: 16 }}>
-              <p style={{ fontSize: 10, fontWeight: 700, color: "#6366f1", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 8 }}>
-                ✦ Added by ResuFit — inferred from your experience
-              </p>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                {inferredSkills.map((skill, i) => (
-                  <span key={i} style={{
-                    padding: "5px 12px", borderRadius: 7, fontSize: 12, fontWeight: 600,
-                    background: "rgba(99,102,241,0.07)", color: "#6366f1",
-                    border: "1px solid rgba(99,102,241,0.2)",
-                  }}>
-                    {skill.name}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* ── Amber: unknown — need user to confirm ── */}
+          {/* ── Amber: needs user input ── */}
           {unknownSkills.length > 0 && (
-            <div>
-              <p style={{ fontSize: 10, fontWeight: 700, color: "#d97706", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 8 }}>
-                ? Do you have experience with these?
+            <div style={{ marginBottom: 16 }}>
+              <p style={{ fontSize: 10, fontWeight: 700, color: "#d97706", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 4 }}>
+                ? Not sure if you have these — tap to tell us
+              </p>
+              <p style={{ fontSize: 11, color: "#6b7280", marginBottom: 8 }}>
+                If you have experience here, we&rsquo;ll add it to your rewritten resume.
               </p>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                 {unknownSkills.map((skill, i) => {
@@ -504,89 +530,182 @@ export default function PreAnalysisScreen({
                     <button
                       key={i}
                       onClick={() => setContextSkill(skill.name)}
-                      title={hasSavedContext ? `Context saved for ${skill.name} — click to edit` : `Tell us if you have ${skill.name} experience`}
                       style={{
                         padding: "5px 12px", borderRadius: 7, fontSize: 12, fontWeight: 600,
                         background: hasSavedContext ? "rgba(16,185,129,0.07)" : "rgba(217,119,6,0.07)",
                         color: hasSavedContext ? "#059669" : "#b45309",
                         border: `1px solid ${hasSavedContext ? "rgba(16,185,129,0.25)" : "rgba(217,119,6,0.25)"}`,
                         cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 5,
-                        transition: "background 0.15s",
                       }}
                     >
                       {hasSavedContext
                         ? <><span style={{ fontSize: 10 }}>✓</span> {skill.name}</>
-                        : <>{skill.name} <span style={{ fontSize: 10, opacity: 0.65 }}>+ tell us</span></>
-                      }
+                        : <>{skill.name} <span style={{ fontSize: 10, opacity: 0.6 }}>+ tell us</span></>}
                     </button>
                   );
                 })}
               </div>
               {Object.keys(skillContexts).length > 0 && (
                 <p style={{ fontSize: 11, color: "#059669", marginTop: 10, fontWeight: 500 }}>
-                  ✓ Context saved for {Object.keys(skillContexts).length} skill{Object.keys(skillContexts).length > 1 ? "s" : ""} — will be woven into your resume on unlock.
+                  ✓ Context saved for {Object.keys(skillContexts).length} skill{Object.keys(skillContexts).length > 1 ? "s" : ""} — woven into your resume on unlock.
                 </p>
               )}
             </div>
           )}
+
+          {/* Soft CTA — nudge toward payment without being pushy */}
+          <div
+            onClick={() => document.getElementById("payment")?.scrollIntoView({ behavior: "smooth" })}
+            style={{
+              marginTop: 6, padding: "10px 14px",
+              background: "rgba(99,102,241,0.04)", border: "1px dashed rgba(99,102,241,0.25)",
+              borderRadius: 10, cursor: "pointer", textAlign: "center",
+            }}
+          >
+            <span style={{ fontSize: 12, color: "#6366f1", fontWeight: 600 }}>
+              ✨ Unlock to download your rewritten resume with all {matchedSkills.length + inferredSkills.length + Object.keys(skillContexts).length} skills included →
+            </span>
+          </div>
         </div>
 
-        {/* ── Resume Preview ── */}
+        {/* ── Resume Preview — "What you'll get" panel ── */}
         <div style={{
           background: "#ffffff", border: "1px solid #e5e7eb",
           borderRadius: 16, marginBottom: 24, overflow: "hidden",
           boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
         }}>
+          {/* Card header */}
           <div style={{
             padding: "14px 20px", borderBottom: "1px solid #f3f4f6",
             display: "flex", alignItems: "center", justifyContent: "space-between",
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ fontSize: 13, fontWeight: 600, color: "#374151" }}>Your optimised resume</span>
+              <span style={{ fontSize: 13, fontWeight: 700, color: "#374151" }}>Your rewritten resume</span>
               <span style={{
                 fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 20,
                 background: "rgba(99,102,241,0.08)", color: "#6366f1",
                 border: "1px solid rgba(99,102,241,0.15)",
               }}>
-                Tailored ✨
+                Ready after unlock ✨
               </span>
             </div>
-            <span style={{ fontSize: 11, color: "#9ca3af" }}>Preview — unlock to download</span>
+            <span style={{ fontSize: 11, color: "#9ca3af" }}>Here&rsquo;s what we&rsquo;ll deliver</span>
           </div>
 
-          <div style={{ position: "relative", maxHeight: 320, overflow: "hidden" }}>
-            <div style={{
-              padding: "20px 24px",
-              fontFamily: "Georgia, 'Times New Roman', serif",
-              fontSize: 11, lineHeight: 1.7, color: "#374151",
-              whiteSpace: "pre-wrap", wordBreak: "break-word",
-            }}>
-              {previewLines.map((line, i) => (
-                <div key={i} style={{ minHeight: "1em" }}>{line || " "}</div>
-              ))}
+          {/* Improvements list */}
+          <div style={{ padding: "20px 24px" }}>
+            <p style={{ fontSize: 12, color: "#6b7280", marginBottom: 16, lineHeight: 1.5 }}>
+              Based on your resume and this job description, here&rsquo;s exactly what ResuFit will produce:
+            </p>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
+              {/* Professional summary */}
+              <div style={{
+                display: "flex", alignItems: "flex-start", gap: 12,
+                padding: "12px 14px", borderRadius: 10,
+                background: "rgba(99,102,241,0.04)", border: "1px solid rgba(99,102,241,0.1)",
+              }}>
+                <span style={{ fontSize: 16, lineHeight: 1, flexShrink: 0 }}>✍️</span>
+                <div>
+                  <p style={{ fontSize: 13, fontWeight: 700, color: "#111827", marginBottom: 2 }}>
+                    Professional summary — rewritten for this role
+                  </p>
+                  <p style={{ fontSize: 12, color: "#6b7280", lineHeight: 1.5 }}>
+                    Opens with the job title and your strongest match, written to pass the 6-second scan.
+                  </p>
+                </div>
+              </div>
+
+              {/* Bullet points */}
+              <div style={{
+                display: "flex", alignItems: "flex-start", gap: 12,
+                padding: "12px 14px", borderRadius: 10,
+                background: "rgba(99,102,241,0.04)", border: "1px solid rgba(99,102,241,0.1)",
+              }}>
+                <span style={{ fontSize: 16, lineHeight: 1, flexShrink: 0 }}>📈</span>
+                <div>
+                  <p style={{ fontSize: 13, fontWeight: 700, color: "#111827", marginBottom: 2 }}>
+                    {bulletsRewritten} bullet points upgraded
+                  </p>
+                  <p style={{ fontSize: 12, color: "#6b7280", lineHeight: 1.5 }}>
+                    Stronger action verbs + measurable outcomes using the X–Y–Z impact formula.
+                  </p>
+                </div>
+              </div>
+
+              {/* Skills added */}
+              {inferredSkills.length > 0 && (
+                <div style={{
+                  display: "flex", alignItems: "flex-start", gap: 12,
+                  padding: "12px 14px", borderRadius: 10,
+                  background: "rgba(99,102,241,0.04)", border: "1px solid rgba(99,102,241,0.1)",
+                }}>
+                  <span style={{ fontSize: 16, lineHeight: 1, flexShrink: 0 }}>✦</span>
+                  <div>
+                    <p style={{ fontSize: 13, fontWeight: 700, color: "#111827", marginBottom: 2 }}>
+                      {inferredSkills.length} skill{inferredSkills.length !== 1 ? "s" : ""} added from your experience
+                    </p>
+                    <p style={{ fontSize: 12, color: "#6b7280", lineHeight: 1.5 }}>
+                      {inferredSkills.slice(0, 3).map(s => s.name).join(", ")}
+                      {inferredSkills.length > 3 ? ` + ${inferredSkills.length - 3} more` : ""} — woven in naturally, never invented.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* User-provided context */}
+              {Object.keys(skillContexts).length > 0 && (
+                <div style={{
+                  display: "flex", alignItems: "flex-start", gap: 12,
+                  padding: "12px 14px", borderRadius: 10,
+                  background: "rgba(16,185,129,0.04)", border: "1px solid rgba(16,185,129,0.15)",
+                }}>
+                  <span style={{ fontSize: 16, lineHeight: 1, flexShrink: 0 }}>💬</span>
+                  <div>
+                    <p style={{ fontSize: 13, fontWeight: 700, color: "#111827", marginBottom: 2 }}>
+                      {Object.keys(skillContexts).length} skill{Object.keys(skillContexts).length !== 1 ? "s" : ""} you told us about — included
+                    </p>
+                    <p style={{ fontSize: 12, color: "#6b7280", lineHeight: 1.5 }}>
+                      Your extra context will be woven into the relevant bullet points.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* ATS formatting */}
+              <div style={{
+                display: "flex", alignItems: "flex-start", gap: 12,
+                padding: "12px 14px", borderRadius: 10,
+                background: "rgba(99,102,241,0.04)", border: "1px solid rgba(99,102,241,0.1)",
+              }}>
+                <span style={{ fontSize: 16, lineHeight: 1, flexShrink: 0 }}>🤖</span>
+                <div>
+                  <p style={{ fontSize: 13, fontWeight: 700, color: "#111827", marginBottom: 2 }}>
+                    ATS-safe formatting throughout
+                  </p>
+                  <p style={{ fontSize: 12, color: "#6b7280", lineHeight: 1.5 }}>
+                    Clean single-column layout, standard section headers, no graphics or tables that confuse parsers.
+                  </p>
+                </div>
+              </div>
             </div>
 
-            <div style={{
-              position: "absolute", bottom: 0, left: 0, right: 0, height: 160,
-              background: "linear-gradient(to bottom, rgba(255,255,255,0.1), rgba(255,255,255,0.97))",
-              backdropFilter: "blur(5px)", WebkitBackdropFilter: "blur(5px)",
-              display: "flex", alignItems: "flex-end", justifyContent: "center",
-              paddingBottom: 20,
-            }}>
-              <button
-                onClick={() => document.getElementById("payment")?.scrollIntoView({ behavior: "smooth" })}
-                style={{
-                  display: "flex", alignItems: "center", gap: 8,
-                  color: "#4b5563", fontSize: 12, fontWeight: 600,
-                  background: "none", border: "none", cursor: "pointer", padding: 0,
-                  textDecoration: "underline", textDecorationColor: "rgba(75,85,99,0.4)",
-                  textUnderlineOffset: 3,
-                }}
-              >
-                <span>🔒</span>
-                <span>Unlock to see your full rewritten resume</span>
-              </button>
-            </div>
+            {/* Lock CTA */}
+            <button
+              onClick={() => document.getElementById("payment")?.scrollIntoView({ behavior: "smooth" })}
+              style={{
+                width: "100%", padding: "13px 20px",
+                background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+                color: "#fff", border: "none", borderRadius: 12,
+                fontSize: 14, fontWeight: 700, cursor: "pointer",
+                boxShadow: "0 4px 16px rgba(99,102,241,0.3)",
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                letterSpacing: "-0.01em",
+              }}
+            >
+              <span>🔒</span>
+              <span>Unlock & download your rewritten resume →</span>
+            </button>
           </div>
         </div>
 
