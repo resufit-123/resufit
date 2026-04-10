@@ -113,16 +113,15 @@ function ApplePayButton({ onClick }: { onClick: () => void }) {
       style={{
         flex: 1, height: 48, borderRadius: 10, border: "none",
         background: "#000", cursor: "pointer",
-        display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+        display: "flex", alignItems: "center", justifyContent: "center", gap: 7,
         transition: "opacity 0.15s",
       }}
       onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.opacity = "0.85"; }}
       onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.opacity = "1"; }}
     >
-      {/* Apple logo — standard two-path silhouette (fa-apple) */}
-      <svg width="14" height="17" viewBox="0 0 814 1000" fill="white" aria-hidden="true">
-        <path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-57.8-155.5-127.4C46 790.7 0 665.6 0 546.8c0-250.9 174.1-383.5 345.7-383.5 91.2 0 167.2 60.6 224.5 60.6 54.8 0 140.8-64.4 243.2-64.4zm-65.5-120.7c37.5-44.7 64.7-107.8 64.7-170.9 0-8.9-.7-17.9-2.2-25.5-60.5 2.4-132.9 40.2-176.4 90.9-33.5 38.2-66.7 101.3-66.7 165.3 0 9.7 1.6 19.4 2.2 22.3 4.2.7 11 1.6 17.8 1.6 53.6 0 120.6-36.1 160.6-83.7z"/>
-      </svg>
+      {/* Apple logo — served as SVG image for crisp rendering */}
+      <img src="/apple-logo.svg" width="17" height="21" alt="" aria-hidden="true"
+        style={{ display: "block", flexShrink: 0 }} />
       <span style={{ color: "#fff", fontSize: 15, fontWeight: 600, letterSpacing: "-0.01em" }}>
         Apple Pay
       </span>
@@ -264,6 +263,14 @@ export default function PreAnalysisScreen({
   onPurchase,
 }: PreAnalysisScreenProps) {
   const [contextSkill, setContextSkill] = useState<string | null>(null);
+  const [currencySymbol, setCurrencySymbol] = useState("$");
+
+  useEffect(() => {
+    const lang = navigator.language || "";
+    if (lang === "en-GB" || lang.startsWith("en-GB")) setCurrencySymbol("£");
+    else if (/^(de|fr|es|it|nl|pt|pl|sv|da|fi|nb|el|cs|sk|hu|ro|bg|hr|sl|et|lv|lt|mt|ga)\b/.test(lang)) setCurrencySymbol("€");
+    else setCurrencySymbol("$");
+  }, []);
 
   const firstName = extractFirstName(resumeText);
   const previewText = firstThird(resumeText);
@@ -315,12 +322,12 @@ export default function PreAnalysisScreen({
           margin: "0 0 8px",
         }}>
           {firstName
-            ? <>{firstName}, we know exactly what to change.</>
-            : <>We know exactly what to change.</>
+            ? <>{firstName}, your resume has been rebuilt.</>
+            : <>Your resume has been rebuilt.</>
           }
         </h1>
         <p style={{ fontSize: 14, color: "#6b7280", margin: 0 }}>
-          Your optimised resume is ready. Here&rsquo;s the full picture.
+          Rewritten for this role — here&rsquo;s what changed.
         </p>
       </div>
 
@@ -399,11 +406,26 @@ export default function PreAnalysisScreen({
             Ready? Download your optimised resume
           </span>
           <span style={{
-            fontSize: 13, fontWeight: 800, color: "#fff",
+            display: "flex", alignItems: "center", gap: 8,
             background: "rgba(255,255,255,0.18)", borderRadius: 8,
             padding: "6px 14px", whiteSpace: "nowrap", flexShrink: 0,
           }}>
-            Get it now — $5 →
+            {/* Mini payment icons */}
+            <span style={{ display: "flex", alignItems: "center", gap: 4, opacity: 0.85 }}>
+              {/* Apple mark */}
+              <img src="/apple-logo.svg" width="9" height="11" alt="" aria-hidden="true"
+                style={{ display: "block", flexShrink: 0 }} />
+              {/* Google G mark */}
+              <svg width="10" height="10" viewBox="0 0 18 18" aria-hidden="true">
+                <path d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 01-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62z" fill="rgba(255,255,255,0.9)"/>
+                <path d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.91-2.26c-.81.54-1.84.86-3.05.86-2.34 0-4.33-1.58-5.04-3.71H.96v2.33C2.44 15.98 5.48 18 9 18z" fill="rgba(255,255,255,0.9)"/>
+                <path d="M3.96 10.71A5.41 5.41 0 013.64 9c0-.59.1-1.17.32-1.71V4.96H.96A9 9 0 000 9c0 1.45.35 2.82.96 4.04l3-2.33z" fill="rgba(255,255,255,0.9)"/>
+                <path d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0 5.48 0 2.44 2.02.96 4.96l3 2.33C4.67 5.16 6.66 3.58 9 3.58z" fill="rgba(255,255,255,0.9)"/>
+              </svg>
+            </span>
+            <span style={{ fontSize: 13, fontWeight: 800, color: "#fff" }}>
+              Get it now — {currencySymbol}5 →
+            </span>
           </span>
         </div>
 
@@ -413,19 +435,17 @@ export default function PreAnalysisScreen({
           borderRadius: 16, padding: "18px 20px", marginBottom: 24,
           boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
         }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-            <p style={{ fontSize: 13, fontWeight: 700, color: "#111827" }}>
-              🛡️ Hiring Software Compatibility
-            </p>
-            <span style={{
-              fontSize: 10, fontWeight: 700, padding: "3px 9px", borderRadius: 20,
-              background: "rgba(16,185,129,0.08)", color: "#059669",
-              border: "1px solid rgba(16,185,129,0.2)",
-            }}>
-              {formattingIssues.length} fixed ✓
-            </span>
+          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 10, gap: 12 }}>
+            <div>
+              <p style={{ fontSize: 14, fontWeight: 800, color: "#059669", marginBottom: 2 }}>
+                ✅ ATS Compatible
+              </p>
+              <p style={{ fontSize: 12, color: "#6b7280" }}>
+                We updated your resume to pass {formattingIssues.length > 0 ? formattingIssues.length : 6} hiring software checks
+              </p>
+            </div>
           </div>
-          {/* Compact chip grid — scannable in 2 seconds */}
+          {/* What was fixed — scannable chips */}
           <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
             {[
               "ATS parsing",
@@ -489,10 +509,19 @@ export default function PreAnalysisScreen({
               display: "flex", alignItems: "flex-end", justifyContent: "center",
               paddingBottom: 20,
             }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#4b5563", fontSize: 12, fontWeight: 600 }}>
+              <button
+                onClick={() => document.getElementById("payment")?.scrollIntoView({ behavior: "smooth" })}
+                style={{
+                  display: "flex", alignItems: "center", gap: 8,
+                  color: "#4b5563", fontSize: 12, fontWeight: 600,
+                  background: "none", border: "none", cursor: "pointer", padding: 0,
+                  textDecoration: "underline", textDecorationColor: "rgba(75,85,99,0.4)",
+                  textUnderlineOffset: 3,
+                }}
+              >
                 <span>🔒</span>
                 <span>Unlock to see your full rewritten resume</span>
-              </div>
+              </button>
             </div>
           </div>
         </div>
@@ -559,7 +588,7 @@ export default function PreAnalysisScreen({
         </div>
 
         {/* ── Payment Card ── */}
-        <div style={{
+        <div id="payment" style={{
           background: "#ffffff", border: "1.5px solid #e5e7eb",
           borderRadius: 20, overflow: "hidden",
           boxShadow: "0 8px 30px rgba(99,102,241,0.10), 0 2px 8px rgba(0,0,0,0.04)",
@@ -618,7 +647,7 @@ export default function PreAnalysisScreen({
                 letterSpacing: "-0.01em",
               }}
             >
-              Download optimised resume — $5
+              Download optimised resume — {currencySymbol}5
             </button>
 
             {/* Apple Pay + Google Pay */}
@@ -696,7 +725,7 @@ export default function PreAnalysisScreen({
                   color: "#fff", fontSize: 13, fontWeight: 700,
                   boxShadow: "0 2px 10px rgba(99,102,241,0.25)",
                 }}>
-                  Get Pro — $15/month →
+                  Get Pro — {currencySymbol}15/month →
                 </div>
               </div>
             </div>
