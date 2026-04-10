@@ -322,8 +322,8 @@ export default function PreAnalysisScreen({
           margin: "0 0 8px",
         }}>
           {firstName
-            ? <>{firstName}, your resume has been rebuilt.</>
-            : <>Your resume has been rebuilt.</>
+            ? <>🎉 {firstName}, your resume has been rebuilt 🎉</>
+            : <>🎉 Your resume has been rebuilt 🎉</>
           }
         </h1>
         <p style={{ fontSize: 14, color: "#6b7280", margin: 0 }}>
@@ -384,7 +384,7 @@ export default function PreAnalysisScreen({
 
         {/* ── Slimline pay strip — for decisive users who've seen enough ── */}
         <div
-          onClick={() => onPurchase("one_time")}
+          onClick={() => document.getElementById("payment")?.scrollIntoView({ behavior: "smooth" })}
           style={{
             display: "flex", alignItems: "center", justifyContent: "space-between",
             background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
@@ -406,65 +406,12 @@ export default function PreAnalysisScreen({
             Ready? Download your optimised resume
           </span>
           <span style={{
-            display: "flex", alignItems: "center", gap: 8,
+            fontSize: 13, fontWeight: 800, color: "#fff",
             background: "rgba(255,255,255,0.18)", borderRadius: 8,
             padding: "6px 14px", whiteSpace: "nowrap", flexShrink: 0,
           }}>
-            {/* Mini payment icons */}
-            <span style={{ display: "flex", alignItems: "center", gap: 4, opacity: 0.85 }}>
-              {/* Apple mark */}
-              <img src="/apple-logo.svg" width="9" height="11" alt="" aria-hidden="true"
-                style={{ display: "block", flexShrink: 0 }} />
-              {/* Google G mark */}
-              <svg width="10" height="10" viewBox="0 0 18 18" aria-hidden="true">
-                <path d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 01-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62z" fill="rgba(255,255,255,0.9)"/>
-                <path d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.91-2.26c-.81.54-1.84.86-3.05.86-2.34 0-4.33-1.58-5.04-3.71H.96v2.33C2.44 15.98 5.48 18 9 18z" fill="rgba(255,255,255,0.9)"/>
-                <path d="M3.96 10.71A5.41 5.41 0 013.64 9c0-.59.1-1.17.32-1.71V4.96H.96A9 9 0 000 9c0 1.45.35 2.82.96 4.04l3-2.33z" fill="rgba(255,255,255,0.9)"/>
-                <path d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0 5.48 0 2.44 2.02.96 4.96l3 2.33C4.67 5.16 6.66 3.58 9 3.58z" fill="rgba(255,255,255,0.9)"/>
-              </svg>
-            </span>
-            <span style={{ fontSize: 13, fontWeight: 800, color: "#fff" }}>
-              Get it now — {currencySymbol}5 →
-            </span>
+            Get it now →
           </span>
-        </div>
-
-        {/* ── ATS Compatibility — compact proof-of-work panel ── */}
-        <div style={{
-          background: "#ffffff", border: "1px solid #e5e7eb",
-          borderRadius: 16, padding: "18px 20px", marginBottom: 24,
-          boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
-        }}>
-          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 10, gap: 12 }}>
-            <div>
-              <p style={{ fontSize: 14, fontWeight: 800, color: "#059669", marginBottom: 2 }}>
-                ✅ ATS Compatible
-              </p>
-              <p style={{ fontSize: 12, color: "#6b7280" }}>
-                We updated your resume to pass {formattingIssues.length > 0 ? formattingIssues.length : 6} hiring software checks
-              </p>
-            </div>
-          </div>
-          {/* What was fixed — scannable chips */}
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
-            {[
-              "ATS parsing",
-              "Keyword alignment",
-              "Section structure",
-              "Date formatting",
-              "Content depth",
-              "Contact details",
-            ].map((label) => (
-              <span key={label} style={{
-                display: "inline-flex", alignItems: "center", gap: 5,
-                fontSize: 12, fontWeight: 600, color: "#059669",
-                background: "rgba(16,185,129,0.07)", border: "1px solid rgba(16,185,129,0.18)",
-                borderRadius: 20, padding: "4px 11px",
-              }}>
-                <span style={{ fontSize: 10, fontWeight: 900 }}>✓</span> {label}
-              </span>
-            ))}
-          </div>
         </div>
 
         {/* ── Resume Preview ── */}
@@ -585,6 +532,36 @@ export default function PreAnalysisScreen({
               </div>
             </div>
           )}
+        </div>
+
+        {/* ── ATS Compatibility ── */}
+        <div style={{
+          background: "#ffffff", border: "1px solid #e5e7eb",
+          borderRadius: 16, padding: "18px 20px", marginBottom: 24,
+          boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
+        }}>
+          <p style={{ fontSize: 13, fontWeight: 700, color: "#059669", marginBottom: 10 }}>
+            ✅ We updated your resume to pass 8 hiring software checks
+          </p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
+            {[
+              "ATS parsing",
+              "Keyword alignment",
+              "Section structure",
+              "Date formatting",
+              "Content depth",
+              "Contact details",
+            ].map((label) => (
+              <span key={label} style={{
+                display: "inline-flex", alignItems: "center", gap: 5,
+                fontSize: 12, fontWeight: 600, color: "#059669",
+                background: "rgba(16,185,129,0.07)", border: "1px solid rgba(16,185,129,0.18)",
+                borderRadius: 20, padding: "4px 11px",
+              }}>
+                <span style={{ fontSize: 10, fontWeight: 900 }}>✓</span> {label}
+              </span>
+            ))}
+          </div>
         </div>
 
         {/* ── Payment Card ── */}
