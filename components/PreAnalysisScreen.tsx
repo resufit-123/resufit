@@ -290,10 +290,13 @@ export default function PreAnalysisScreen({
   const previewText = firstThird(resumeText);
   const previewLines = previewText.split("\n");
 
-  // Filter to only meaningful skill names
+  // Filter to only meaningful skill names, then split into three groups
   const allSkills = analysis.skills.filter((s) => isRecognizableSkill(s.name));
-  const missingSkills = allSkills.filter((s) => s.status === "missing");
   const matchedSkills = allSkills.filter((s) => s.status === "matched");
+  const inferredSkills = allSkills.filter((s) => s.status === "inferred");
+  const unknownSkills = allSkills.filter((s) => s.status === "unknown");
+  // For stats / legacy references
+  const missingSkills = [...inferredSkills, ...unknownSkills];
   const improvement = analysis.predictedAfter - analysis.scoreBefore;
 
   const totalSkills = allSkills.length;
@@ -435,7 +438,7 @@ export default function PreAnalysisScreen({
           </span>
         </div>
 
-        {/* ── Skills Breakdown ── */}
+        {/* ── Skills Match Breakdown ── */}
         <div style={{
           background: "#ffffff", border: "1px solid #e5e7eb",
           borderRadius: 16, padding: 24, marginBottom: 24,
@@ -444,22 +447,22 @@ export default function PreAnalysisScreen({
           <p style={{ fontSize: 14, fontWeight: 700, color: "#111827", marginBottom: 4 }}>
             Skills Match Breakdown
           </p>
-          <p style={{ fontSize: 12, color: "#6b7280", marginBottom: 16 }}>
-            Skills the job description asks for — click any missing one to add your experience.
+          <p style={{ fontSize: 12, color: "#6b7280", marginBottom: 18 }}>
+            Every skill the job description asks for, and where you stand.
           </p>
 
-          {/* Matched skills */}
+          {/* ── Green: already in resume ── */}
           {matchedSkills.length > 0 && (
-            <div style={{ marginBottom: 12 }}>
-              <p style={{ fontSize: 10, color: "#059669", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>
+            <div style={{ marginBottom: 16 }}>
+              <p style={{ fontSize: 10, fontWeight: 700, color: "#059669", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 8 }}>
                 ✓ Already in your resume
               </p>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                 {matchedSkills.map((skill, i) => (
                   <span key={i} style={{
-                    padding: "5px 11px", borderRadius: 7, fontSize: 12, fontWeight: 600,
+                    padding: "5px 12px", borderRadius: 7, fontSize: 12, fontWeight: 600,
                     background: "rgba(16,185,129,0.07)", color: "#059669",
-                    border: "1px solid rgba(16,185,129,0.18)",
+                    border: "1px solid rgba(16,185,129,0.2)",
                   }}>
                     {skill.name}
                   </span>
@@ -468,31 +471,53 @@ export default function PreAnalysisScreen({
             </div>
           )}
 
-          {/* Missing skills — click to add context */}
-          {missingSkills.length > 0 && (
-            <div>
-              <p style={{ fontSize: 10, color: "#6366f1", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>
-                + Missing — will be added by ResuFit
+          {/* ── Purple: ResuFit can add from inferred experience ── */}
+          {inferredSkills.length > 0 && (
+            <div style={{ marginBottom: 16 }}>
+              <p style={{ fontSize: 10, fontWeight: 700, color: "#6366f1", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 8 }}>
+                ✦ Added by ResuFit — inferred from your experience
               </p>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                {missingSkills.map((skill, i) => {
+                {inferredSkills.map((skill, i) => (
+                  <span key={i} style={{
+                    padding: "5px 12px", borderRadius: 7, fontSize: 12, fontWeight: 600,
+                    background: "rgba(99,102,241,0.07)", color: "#6366f1",
+                    border: "1px solid rgba(99,102,241,0.2)",
+                  }}>
+                    {skill.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── Amber: unknown — need user to confirm ── */}
+          {unknownSkills.length > 0 && (
+            <div>
+              <p style={{ fontSize: 10, fontWeight: 700, color: "#d97706", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 8 }}>
+                ? Do you have experience with these?
+              </p>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                {unknownSkills.map((skill, i) => {
                   const hasSavedContext = Boolean(skillContexts[skill.name]);
                   return (
                     <button
                       key={i}
                       onClick={() => setContextSkill(skill.name)}
-                      title={hasSavedContext ? `Context saved for ${skill.name}` : `Tell us about your ${skill.name} experience`}
+                      title={hasSavedContext ? `Context saved for ${skill.name} — click to edit` : `Tell us if you have ${skill.name} experience`}
                       style={{
-                        padding: "5px 11px", borderRadius: 7, fontSize: 12, fontWeight: 600,
-                        background: hasSavedContext ? "rgba(16,185,129,0.07)" : "rgba(99,102,241,0.07)",
-                        color: hasSavedContext ? "#059669" : "#6366f1",
-                        border: `1px solid ${hasSavedContext ? "rgba(16,185,129,0.25)" : "rgba(99,102,241,0.2)"}`,
+                        padding: "5px 12px", borderRadius: 7, fontSize: 12, fontWeight: 600,
+                        background: hasSavedContext ? "rgba(16,185,129,0.07)" : "rgba(217,119,6,0.07)",
+                        color: hasSavedContext ? "#059669" : "#b45309",
+                        border: `1px solid ${hasSavedContext ? "rgba(16,185,129,0.25)" : "rgba(217,119,6,0.25)"}`,
                         cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 5,
+                        transition: "background 0.15s",
                       }}
                     >
-                      {hasSavedContext ? <span style={{ fontSize: 10 }}>✓</span> : null}
-                      {skill.name}
-                      {!hasSavedContext && <span style={{ fontSize: 10, opacity: 0.6 }}>+ add context</span>}
+                      {hasSavedContext
+                        ? <><span style={{ fontSize: 10 }}>✓</span> {skill.name}</>
+                        : <>{skill.name} <span style={{ fontSize: 10, opacity: 0.65 }}>+ tell us</span></>
+                      }
                     </button>
                   );
                 })}

@@ -22,7 +22,7 @@ type PageState =
 export interface AnalysisResult {
   scoreBefore: number;
   predictedAfter: number;
-  skills: { name: string; status: "matched" | "missing" }[];
+  skills: { name: string; status: "matched" | "inferred" | "unknown" }[];
   formattingIssues: string[];
   jobTitleHint: string | null;
   keywordsAnalysed: number;

@@ -24,6 +24,68 @@ const STOP_WORDS = new Set([
   "manage","lead","drive","responsible","responsibilities","opportunity","great",
 ]);
 
+// Skill clusters — groups of interchangeable / closely related skills.
+// If a JD skill is missing from the resume but the resume contains another
+// skill in the same cluster, ResuFit can infer the candidate has relevant
+// experience and will add the skill to the rewritten resume automatically.
+const SKILL_CLUSTERS: string[][] = [
+  // Frontend frameworks
+  ["react", "next.js", "vue", "angular", "svelte", "storybook"],
+  // CSS / styling
+  ["tailwind", "css", "css3", "sass", "less", "bootstrap", "styled-components"],
+  // Backend frameworks
+  ["node.js", "express", "nestjs", "fastify", "django", "flask", "fastapi", "rails", "spring", "laravel"],
+  // Languages — scripting / web
+  ["python", "javascript", "typescript", "ruby", "php"],
+  // Languages — systems / mobile
+  ["java", "kotlin", "swift", "go", "rust", "c++", "c#", "scala", "dart"],
+  // Cloud platforms
+  ["aws", "azure", "gcp", "heroku", "vercel", "netlify", "cloudflare"],
+  // SQL databases
+  ["postgresql", "mysql", "sqlite", "sql server", "oracle", "redshift", "bigquery", "sql"],
+  // NoSQL databases
+  ["mongodb", "redis", "dynamodb", "cassandra", "firebase", "elasticsearch"],
+  // ML / AI frameworks
+  ["tensorflow", "pytorch", "keras", "scikit-learn"],
+  // Data engineering tools
+  ["pandas", "numpy", "spark", "hadoop", "airflow", "dbt", "databricks", "snowflake"],
+  // Containerisation / orchestration
+  ["docker", "kubernetes"],
+  // Infrastructure as code
+  ["terraform", "ansible"],
+  // CI/CD
+  ["github actions", "jenkins", "circleci", "ci/cd", "devops"],
+  // Observability
+  ["prometheus", "grafana", "datadog"],
+  // Design tools
+  ["figma", "sketch", "adobe xd", "invision", "zeplin"],
+  // Project management
+  ["jira", "linear", "asana", "trello", "notion", "confluence"],
+  // Analytics / BI
+  ["google analytics", "mixpanel", "segment", "tableau", "powerbi", "looker", "looker studio"],
+  // CRM / Marketing automation
+  ["salesforce", "hubspot", "marketo"],
+  // Agile / delivery methodologies
+  ["agile", "scrum", "kanban", "sprint"],
+  // Leadership adjacent
+  ["leadership", "mentoring", "stakeholder management", "stakeholder", "cross-functional"],
+];
+
+// Returns true if the resume contains any skill in the same cluster as `skill`,
+// meaning ResuFit can confidently infer the candidate has relevant experience.
+function canInferSkill(skill: string, resumeSkillsLower: Set<string>): boolean {
+  const s = skill.toLowerCase();
+  for (const cluster of SKILL_CLUSTERS) {
+    const lc = cluster.map((x) => x.toLowerCase());
+    if (!lc.includes(s)) continue;
+    // Found the cluster — check if resume has any other member
+    for (const peer of lc) {
+      if (peer !== s && resumeSkillsLower.has(peer)) return true;
+    }
+  }
+  return false;
+}
+
 // Known tech/professional skills to specifically look for
 const KNOWN_SKILLS = [
   // Languages
@@ -147,27 +209,37 @@ function skillPresentInText(skill: string, resumeLower: string): boolean {
 
 function scoreResume(resumeText: string, keywords: string[]): {
   matched: string[];
-  missing: string[];
+  inferred: string[];
+  unknown: string[];
   score: number;
 } {
   const lower = resumeText.toLowerCase();
   const matched: string[] = [];
-  const missing: string[] = [];
+  const inferred: string[] = [];
+  const unknown: string[] = [];
+
+  // Build a set of skills already present in the resume (for cluster inference)
+  const resumeSkillsLower = new Set(
+    KNOWN_SKILLS.filter((s) => skillPresentInText(s, lower)).map((s) => s.toLowerCase())
+  );
 
   for (const kw of keywords) {
     if (skillPresentInText(kw, lower)) {
       matched.push(kw);
+    } else if (canInferSkill(kw, resumeSkillsLower)) {
+      // Resume contains a peer skill in the same cluster — ResuFit can add this confidently
+      inferred.push(kw);
     } else {
-      missing.push(kw);
+      // No evidence — need to ask the user
+      unknown.push(kw);
     }
   }
 
-  // Score weighted: matched / total, capped and scaled to realistic range (20–75)
+  // Score: matched skills only (pre-optimisation state). Map to realistic 20–75 range.
   const raw = keywords.length > 0 ? matched.length / keywords.length : 0;
-  // Real resumes rarely score 0 or 100 — map to 20–75 range for "before"
   const score = Math.round(20 + raw * 55);
 
-  return { matched, missing, score };
+  return { matched, inferred, unknown, score };
 }
 
 function detectFormattingIssues(resumeText: string): string[] {
@@ -254,8 +326,8 @@ export async function POST(request: NextRequest) {
   // Extract keywords from JD
   const keywords = extractKeywords(jobDescription);
 
-  // Score resume against keywords
-  const { matched, missing, score } = scoreResume(resumeText, keywords);
+  // Score resume against keywords — three-state result
+  const { matched, inferred, unknown, score } = scoreResume(resumeText, keywords);
 
   // Detect formatting issues
   const formattingIssues = detectFormattingIssues(resumeText);
@@ -266,10 +338,11 @@ export async function POST(request: NextRequest) {
   ) ?? jobDescription.match(/^([^\n.]{10,60})/);
   const jobTitleHint = titleMatch ? titleMatch[1].trim().slice(0, 60) : null;
 
-  // Build skills array for the UI — take top matched + top missing
+  // Build skills array for the UI — three states, sensible caps per group
   const skills = [
-    ...matched.slice(0, 12).map((name) => ({ name, status: "matched" as const })),
-    ...missing.slice(0, 8).map((name) => ({ name, status: "missing" as const })),
+    ...matched.slice(0, 10).map((name) => ({ name, status: "matched" as const })),
+    ...inferred.slice(0, 8).map((name) => ({ name, status: "inferred" as const })),
+    ...unknown.slice(0, 6).map((name) => ({ name, status: "unknown" as const })),
   ];
 
   // Predicted score after ResuFit — always strong (90–96), varied per run
@@ -283,6 +356,7 @@ export async function POST(request: NextRequest) {
     jobTitleHint,
     keywordsAnalysed: keywords.length,
     matchedCount: matched.length,
-    missingCount: missing.length,
+    inferredCount: inferred.length,
+    unknownCount: unknown.length,
   });
 }
